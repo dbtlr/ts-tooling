@@ -1,0 +1,20 @@
+import { describe, expect, it } from "vitest";
+import { oxlint, oxlintReact } from "../src/oxlint.js";
+
+describe("oxlint presets", () => {
+  it("returns a node/vitest config without runtime tool imports", () => {
+    const config = oxlint({ target: "node", tests: "vitest", strictWarnings: true });
+
+    expect(config.plugins).toContain("typescript");
+    expect(config.plugins).toContain("vitest");
+    expect(config.options).toEqual({ maxWarnings: 0 });
+    expect(config.overrides).toHaveLength(1);
+  });
+
+  it("adds react plugins for react targets", () => {
+    const config = oxlintReact();
+
+    expect(config.plugins).toContain("react");
+    expect(config.plugins).toContain("jsx-a11y");
+  });
+});

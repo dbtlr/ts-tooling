@@ -1,0 +1,81 @@
+{
+  "name": "@dbtlr/tooling",
+  "version": "0.0.0",
+  "description": "Tree-shakeable shared TypeScript, Oxlint, Vitest, Vite, and Vite+ config helpers for dbtlr projects.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "tsconfig",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./oxlint": {
+      "types": "./dist/oxlint.d.mts",
+      "default": "./dist/oxlint.mjs"
+    },
+    "./vitest": {
+      "types": "./dist/vitest.d.mts",
+      "default": "./dist/vitest.mjs"
+    },
+    "./vite-plus": {
+      "types": "./dist/vite-plus.d.mts",
+      "default": "./dist/vite-plus.mjs"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.mts",
+      "default": "./dist/vite.mjs"
+    },
+    "./package-json": {
+      "types": "./dist/package-json.d.mts",
+      "default": "./dist/package-json.mjs"
+    },
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/node.json": "./tsconfig/node.json",
+    "./tsconfig/bun.json": "./tsconfig/bun.json",
+    "./tsconfig/react.json": "./tsconfig/react.json",
+    "./tsconfig/monorepo.json": "./tsconfig/monorepo.json",
+    "./tsconfig/vitest.json": "./tsconfig/vitest.json",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build",
+    "pack:dry": "pnpm pack --dry-run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "oxlint": "^1.70.0",
+    "tsdown": "^0.16.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0",
+    "vite-plus": "^0.2.1",
+    "vitest": "^4.0.0"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.59.0",
+    "vite": ">=7.0.0",
+    "vite-plus": ">=0.2.0",
+    "vitest": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "oxlint": { "optional": true },
+    "vite": { "optional": true },
+    "vite-plus": { "optional": true },
+    "vitest": { "optional": true }
+  },
+  "packageManager": "pnpm@11.0.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
