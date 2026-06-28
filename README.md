@@ -1,23 +1,46 @@
 # @dbtlr/tooling
 
-Tree-shakeable shared config helpers for Drew's TypeScript projects.
+Shared Vite+ config for Drew's TypeScript projects — one `toolingConfig()` entry point.
 
-The package is intentionally split into subpath exports so consumers only import the tooling surface they need:
+## Quick start
+
+One call describes what the project is and returns a finished Vite+ config:
 
 ```ts
-import { vitestNode } from '@dbtlr/tooling/vitest';
-import { vitePlusPackage } from '@dbtlr/tooling/vite-plus';
+// vite.config.ts
+import { toolingConfig } from '@dbtlr/tooling';
+
+export default toolingConfig({ react: true }); // browser React app
 ```
 
-Linting and formatting are delivered through Vite+ (`vp lint` / `vp fmt`), which bundles Oxlint — there is no standalone Oxlint subpath. Configure lint rules via the `lint` option on the Vite+ helpers below.
+Intent flags fan out to lint, test, and Vite config. Every project shape is a single `toolingConfig` call:
 
-## Dependency policy
+| Project                | Call                                                                       |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Node server            | `toolingConfig({ node: true })`                                            |
+| Browser React app      | `toolingConfig({ react: true })`                                           |
+| Isomorphic React (SSR) | `toolingConfig({ node: true, react: true })`                               |
+| Published library      | `toolingConfig({ pack: { entry: ['src/index.ts'] } })`                     |
+| Node CLI / package     | `toolingConfig({ node: true, pack: { entry: ['src/cli.ts'] } })`           |
+| Monorepo root          | `toolingConfig({ node: ['packages/api/**'], react: ['packages/web/**'] })` |
 
-`@dbtlr/tooling` has **no runtime dependencies**. Tool integrations are optional peers and dev dependencies:
+See [`examples/`](./examples) for runnable, CI-verified versions of each.
 
-- `devDependencies` are used to build and test this package.
-- `peerDependenciesMeta.optional` documents the tools consumers may install if they use a matching subpath.
-- Source modules avoid top-level runtime imports from optional tools so unused subpaths remain tree-shakeable.
+### How intent maps to config
+
+- `node` — Node lint target (allows `node:` builtins) + node test env.
+- `react` — React lint plugins + modern-JSX rules + PascalCase filenames, jsdom test env, and the Vite react-app block.
+- `node` + `react` — isomorphic: both lint targets, jsdom test.
+- `pack` present — buildable/publishable package (adds the `pack` block).
+- `test` — override the derived env (`'node'` / `'react'`) or omit it (`false`).
+
+`node`/`react` accept `boolean | string[]`. **A boolean configures the whole project; a glob list scopes the target to those files** (a `files`-scoped oxlint override) and marks a **monorepo root** — lint is centralized and no project-wide test/Vite block is added (members own those). This is how one root config addresses each package's runtime in a vite-plus monorepo (whose `pnpm-workspace.yaml` centralizes lint config).
+
+`toolingConfig` also accepts the full Vite+ options (`lint` / `fmt` / `staged` / `pack`) as overrides on top of the derived defaults.
+
+### Strict by default
+
+Lint is **strict by default** — warnings fail (`denyWarnings`) and type-aware lint + type checking run (`typeAware`, `typeCheck`). Opt out per-flag via the `lint` override, e.g. `toolingConfig({ react: true, lint: { typeCheck: false } })`.
 
 ## TypeScript presets
 
@@ -37,54 +60,30 @@ Available presets:
 - `@dbtlr/tooling/tsconfig/monorepo.json`
 - `@dbtlr/tooling/tsconfig/vitest.json`
 
-## Vitest
+## Granular helpers (escape hatch)
 
-```ts
-import { vitestNode } from '@dbtlr/tooling/vitest';
+`toolingConfig` composes these; reach for them directly when you need finer control — e.g. a monorepo **member** package, or passing Vite plugins. Each is its own subpath export:
 
-export default vitestNode({ include: ['src/**/*.test.ts'] });
-```
-
-## Vite+
+- `vitePlusBase` / `vitePlusPackage` (`@dbtlr/tooling/vite-plus`) — lint/fmt/staged, plus a `pack` block for buildable packages. `node`/`react` live under the `lint` option here. Strict by default.
+- `vitestNode` / `vitestReact` (`@dbtlr/tooling/vitest`) — Vitest project config (node / jsdom).
+- `viteReactApp` (`@dbtlr/tooling/vite`) — the Vite react-app block; pass `plugins: [react()]` for a real dev/build server.
 
 ```ts
 import { defineConfig } from 'vite-plus';
 import { vitePlusPackage } from '@dbtlr/tooling/vite-plus';
+import { vitestNode } from '@dbtlr/tooling/vitest';
 
-export default defineConfig(
-  vitePlusPackage({
-    pack: { entry: ['src/index.ts'] },
-  }),
-);
-```
-
-Two helpers: `vitePlusBase` (lint + format + staged) and `vitePlusPackage` (base plus a `pack` block for buildable/publishable packages). Both are **strict by default** — warnings fail (`denyWarnings`) and type-aware lint + type checking run (`typeAware`, `typeCheck`). Opt out of any of these per-flag, e.g. `lint: { typeCheck: false }`.
-
-### Lint targets
-
-The lint helpers default to a **browser** target. Two options adapt the rules to your runtime. Each accepts `boolean | string[]`:
-
-- `node?: boolean | string[]` (default `false`) — when `true`, enables the oxlint `node` plugin and allows Node.js builtin imports across the whole project. When `false`, the `node` plugin is omitted and `import/no-nodejs-modules` is set to `error` (browser code may not import builtins). Set `true` for Node servers, CLIs, and packages.
-- `react?: boolean | string[]` (default `false`) — when `true`, enables the `react`, `react-perf`, and `jsx-a11y` plugins, disables `react/react-in-jsx-scope` for the React 17+ automatic JSX runtime, and allows PascalCase component filenames.
-
-```ts
-vitePlusPackage({ lint: { node: true } }); // Node server / CLI / package
-vitePlusBase({ lint: { react: true } }); // browser-only React app
-vitePlusBase({ lint: { node: true, react: true } }); // isomorphic React (SSR)
-```
-
-Passing a **list of globs** instead of `true` scopes the target to just those files — it emits a `files`-scoped oxlint override rather than whole-project config. This is how a vite-plus **monorepo** (whose root `pnpm-workspace.yaml` centralizes lint config in the root `vite.config.ts`) addresses each package's target from one config:
-
-```ts
-vitePlusBase({
-  lint: {
-    node: ['packages/api/**'], // node: builtins allowed only here
-    react: ['packages/web/**'], // React lint only here
-  },
+export default defineConfig({
+  ...vitePlusPackage({ lint: { node: true }, pack: { entry: ['src/index.ts'] } }),
+  ...vitestNode(),
 });
 ```
 
-See [`examples/monorepo`](./examples/monorepo) for a runnable, CI-verified version.
+Linting and formatting are delivered through Vite+ (`vp lint` / `vp fmt`), which bundles Oxlint — there is no standalone Oxlint subpath.
+
+## Dependency policy
+
+`@dbtlr/tooling` declares its tool integrations (`vite`, `vite-plus`) as **optional peer dependencies** — install the ones your config uses. `vite-plus` powers the whole toolchain (build / lint / fmt / test via `vp`).
 
 ## Verification
 

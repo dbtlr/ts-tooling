@@ -2,7 +2,7 @@
   "name": "@dbtlr/tooling",
   "version": "0.0.0",
   "private": true,
-  "description": "Tree-shakeable shared TypeScript, Vitest, Vite, and Vite+ config helpers for dbtlr projects.",
+  "description": "Shared TypeScript, Vitest, and Vite+ config for dbtlr projects — one toolingConfig() entry point.",
   "license": "MIT",
   "files": [
     "dist",
