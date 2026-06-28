@@ -37,9 +37,5 @@ const vitestReact = (options: VitestProjectOptions = {}): JsonObject =>
     'tests/**/*.test.{ts,tsx}',
   ]);
 
-const vitestWorkspace = (projects: readonly JsonObject[]): JsonObject => ({
-  test: { projects: [...projects] },
-});
-
-export { vitestNode, vitestReact, vitestWorkspace };
+export { vitestNode, vitestReact };
 export type { VitestEnvironment, VitestProjectOptions };
