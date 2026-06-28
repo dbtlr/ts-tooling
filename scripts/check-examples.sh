@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Verify every standalone example app (NOT a workspace — each is its own
-# vite-plus project) by running `vp check` + `vp test` from its own path.
+# Verify every example app by running `vp check` + `vp test` from its own path.
+# Most are standalone single-package vite-plus projects; `monorepo` is a
+# pnpm-workspace with its own member packages. `vp check`/`vp test` run from the
+# example root cover either shape, so the loop treats them uniformly.
 # Prints a red/green line per example and exits non-zero if any fail.
 set -uo pipefail
 
@@ -15,7 +17,7 @@ reset=$'\033[0m'
 echo "${dim}Building @dbtlr/tooling so examples can resolve it...${reset}"
 pnpm run build >/dev/null 2>&1 || { echo "${red}✗ package build failed${reset}"; exit 1; }
 
-examples=(node-server cli library react-spa react-fullstack)
+examples=(node-server cli library react-spa react-fullstack monorepo)
 failed=()
 
 for ex in "${examples[@]}"; do
