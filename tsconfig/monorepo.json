@@ -4,7 +4,6 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["node"],
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
