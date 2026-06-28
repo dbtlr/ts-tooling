@@ -5,8 +5,8 @@ Tree-shakeable shared config helpers for Drew's TypeScript projects.
 The package is intentionally split into subpath exports so consumers only import the tooling surface they need:
 
 ```ts
-import { vitestNode } from "@dbtlr/tooling/vitest";
-import { vitePlusPackage } from "@dbtlr/tooling/vite-plus";
+import { vitestNode } from '@dbtlr/tooling/vitest';
+import { vitePlusPackage } from '@dbtlr/tooling/vite-plus';
 ```
 
 Linting and formatting are delivered through Vite+ (`vp lint` / `vp fmt`), which bundles Oxlint — there is no standalone Oxlint subpath. Configure lint rules via the `lint` option on the Vite+ helpers below.
@@ -40,20 +40,20 @@ Available presets:
 ## Vitest
 
 ```ts
-import { vitestNode } from "@dbtlr/tooling/vitest";
+import { vitestNode } from '@dbtlr/tooling/vitest';
 
-export default vitestNode({ include: ["src/**/*.test.ts"] });
+export default vitestNode({ include: ['src/**/*.test.ts'] });
 ```
 
 ## Vite+
 
 ```ts
-import { defineConfig } from "vite-plus";
-import { vitePlusPackage } from "@dbtlr/tooling/vite-plus";
+import { defineConfig } from 'vite-plus';
+import { vitePlusPackage } from '@dbtlr/tooling/vite-plus';
 
 export default defineConfig(
   vitePlusPackage({
-    pack: { entry: ["src/index.ts"] },
+    pack: { entry: ['src/index.ts'] },
     lint: { typeAware: true },
   }),
 );

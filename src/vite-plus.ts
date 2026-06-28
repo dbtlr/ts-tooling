@@ -1,5 +1,5 @@
-import { compactObject } from "./types.js";
-import type { JsonObject } from "./types.js";
+import { compactObject } from './types.js';
+import type { JsonObject } from './types.js';
 
 type VitePlusLintOptions = {
   readonly typeAware?: boolean;
@@ -20,21 +20,21 @@ type VitePlusPackageOptions = {
 
 const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
   categories: {
-    correctness: "error",
-    nursery: "off",
-    pedantic: "off",
-    perf: "error",
-    restriction: "off",
-    style: "warn",
-    suspicious: "error",
+    correctness: 'error',
+    nursery: 'off',
+    pedantic: 'off',
+    perf: 'error',
+    restriction: 'off',
+    style: 'warn',
+    suspicious: 'error',
   },
   ignorePatterns: [
-    "node_modules",
-    "dist",
-    "build",
-    "coverage",
-    ".turbo",
-    ".vite",
+    'node_modules',
+    'dist',
+    'build',
+    'coverage',
+    '.turbo',
+    '.vite',
     ...(options.ignores ?? []),
   ],
   options: compactObject({
@@ -46,41 +46,41 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
   overrides: [
     {
       files: [
-        "tests/**/*.ts",
-        "tests/**/*.tsx",
-        "**/*.test.ts",
-        "**/*.test.tsx",
-        "**/*.spec.ts",
-        "**/*.spec.tsx",
+        'tests/**/*.ts',
+        'tests/**/*.tsx',
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        '**/*.spec.ts',
+        '**/*.spec.tsx',
       ],
       rules: {
-        "max-statements": "off",
-        "vitest/no-importing-vitest-globals": "off",
-        "vitest/prefer-expect-assertions": "off",
-        "vitest/prefer-importing-vitest-globals": "off",
+        'max-statements': 'off',
+        'vitest/no-importing-vitest-globals': 'off',
+        'vitest/prefer-expect-assertions': 'off',
+        'vitest/prefer-importing-vitest-globals': 'off',
       },
     },
     ...(options.overrides ?? []),
   ],
-  plugins: ["typescript", "import", "eslint", "unicorn", "oxc", "promise", "node", "vitest"],
+  plugins: ['typescript', 'import', 'eslint', 'unicorn', 'oxc', 'promise', 'node', 'vitest'],
   rules: {
-    "capitalized-comments": "off",
-    "import/no-named-export": "off",
-    "import/no-nodejs-modules": "off",
-    "no-duplicate-imports": ["warn", { allowSeparateTypeImports: true }],
-    "no-magic-numbers": "off",
-    "no-ternary": "off",
-    "sort-imports": "off",
-    "typescript/consistent-type-definitions": ["warn", "type"],
-    "unicorn/no-null": "off",
+    'capitalized-comments': 'off',
+    'import/no-named-export': 'off',
+    'import/no-nodejs-modules': 'off',
+    'no-duplicate-imports': ['warn', { allowSeparateTypeImports: true }],
+    'no-magic-numbers': 'off',
+    'no-ternary': 'off',
+    'sort-imports': 'off',
+    'typescript/consistent-type-definitions': ['warn', 'type'],
+    'unicorn/no-null': 'off',
     // Ternaries are allowed (no-ternary off) but not forced; prefer-ternary would
     // rewrite else-if chains into nested ternaries, conflicting with unicorn/no-nested-ternary.
-    "unicorn/prefer-ternary": "off",
-    "vitest/prefer-importing-vitest-globals": "off",
+    'unicorn/prefer-ternary': 'off',
+    'vitest/prefer-importing-vitest-globals': 'off',
     // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
     // Disabled at base (not just in test files) so the conflict can't fire anywhere.
-    "vitest/prefer-to-be-falsy": "off",
-    "vitest/prefer-to-be-truthy": "off",
+    'vitest/prefer-to-be-falsy': 'off',
+    'vitest/prefer-to-be-truthy': 'off',
     ...options.rules,
   },
 });
@@ -89,19 +89,21 @@ const vitePlusBase = (options: VitePlusPackageOptions = {}): JsonObject =>
   compactObject({
     fmt: {
       ignorePatterns: [
-        "pnpm-lock.yaml",
-        "bun.lock",
-        "dist/**",
-        "build/**",
-        "node_modules/**",
-        "coverage/**",
-        ".turbo/**",
-        ".vite/**",
+        'pnpm-lock.yaml',
+        'bun.lock',
+        'dist/**',
+        'build/**',
+        'node_modules/**',
+        'coverage/**',
+        '.turbo/**',
+        '.vite/**',
       ],
+      singleQuote: true,
+      sortImports: { ignoreCase: true },
       ...options.fmt,
     },
     lint: vitePlusLint(options.lint),
-    staged: options.staged === false ? undefined : (options.staged ?? { "*": "vp check --fix" }),
+    staged: options.staged === false ? undefined : (options.staged ?? { '*': 'vp check --fix' }),
   });
 
 const vitePlusPackage = (options: VitePlusPackageOptions = {}): JsonObject => ({

@@ -1,20 +1,21 @@
-import { describe, expect, it } from "vite-plus/test";
-import { vitestNode, vitestReact, vitestWorkspace } from "../src/vitest.js";
+import { describe, expect, it } from 'vite-plus/test';
 
-describe("vitest presets", () => {
-  it("creates node defaults", () => {
+import { vitestNode, vitestReact, vitestWorkspace } from '../src/vitest.js';
+
+describe('vitest presets', () => {
+  it('creates node defaults', () => {
     expect(vitestNode()).toMatchObject({
-      test: { environment: "node" },
+      test: { environment: 'node' },
     });
   });
 
-  it("creates react jsdom defaults", () => {
+  it('creates react jsdom defaults', () => {
     expect(vitestReact()).toMatchObject({
-      test: { environment: "jsdom", globals: true },
+      test: { environment: 'jsdom', globals: true },
     });
   });
 
-  it("creates workspace config", () => {
+  it('creates workspace config', () => {
     expect(vitestWorkspace([vitestNode(), vitestReact()])).toMatchObject({
       test: { projects: expect.any(Array) },
     });
