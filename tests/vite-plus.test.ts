@@ -135,6 +135,8 @@ describe('vite-plus presets', () => {
           files: ['packages/web/**'],
           plugins: ['react', 'react-perf', 'jsx-a11y'],
           rules: {
+            'react/jsx-max-depth': 'off',
+            'react/jsx-props-no-spreading': 'off',
             'react/react-in-jsx-scope': 'off',
             'unicorn/filename-case': ['warn', { cases: { kebabCase: true, pascalCase: true } }],
           },
@@ -164,7 +166,7 @@ describe('vite-plus presets', () => {
     });
   });
 
-  it('turns off the too-opinionated style rules by default', () => {
+  it('turns off the runtime-agnostic too-opinionated rules by default', () => {
     expect(vitePlusBase().lint).toMatchObject({
       rules: {
         'id-length': 'off',
@@ -175,12 +177,22 @@ describe('vite-plus presets', () => {
         'no-continue': 'off',
         'prefer-destructuring': 'off',
         'prefer-named-capture-group': 'off',
-        'react/jsx-max-depth': 'off',
-        'react/jsx-props-no-spreading': 'off',
         'unicorn/catch-error-name': 'off',
         'unicorn/no-await-expression-member': 'off',
         'unicorn/numeric-separators-style': 'off',
       },
+    });
+  });
+
+  it('keeps the react relaxations out of a non-react base', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      rules: expect.not.objectContaining({ 'react/jsx-max-depth': 'off' }),
+    });
+  });
+
+  it('relaxes the react rules only when a react target is enabled', () => {
+    expect(vitePlusPackage({ lint: { react: true } }).lint).toMatchObject({
+      rules: { 'react/jsx-max-depth': 'off', 'react/jsx-props-no-spreading': 'off' },
     });
   });
 
