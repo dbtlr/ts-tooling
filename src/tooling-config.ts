@@ -35,8 +35,9 @@ const toolingConfig = (options: ToolingConfigOptions = {}) => {
   const base =
     pack === undefined ? vitePlusBase(baseOptions) : vitePlusPackage({ ...baseOptions, pack });
 
-  // Single-project react gets the vite react-app block; a monorepo root does not.
-  const viteApp = react === true ? viteReactApp() : {};
+  // Single-project react gets the vite react-app block; a monorepo root (any glob
+  // target) does not — gated on `scoped` so it stays consistent with the test block.
+  const viteApp = react === true && !scoped ? viteReactApp() : {};
 
   // Derive the test env from intent unless overridden; monorepo roots and
   // `test: false` carry no test block (members own their own test config).

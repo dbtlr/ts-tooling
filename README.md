@@ -36,7 +36,7 @@ See [`examples/`](./examples) for runnable, CI-verified versions of each.
 
 `node`/`react` accept `boolean | string[]`. **A boolean configures the whole project; a glob list scopes the target to those files** (a `files`-scoped oxlint override) and marks a **monorepo root** — lint is centralized and no project-wide test/Vite block is added (members own those). This is how one root config addresses each package's runtime in a vite-plus monorepo (whose `pnpm-workspace.yaml` centralizes lint config).
 
-`toolingConfig` also accepts the full Vite+ options (`lint` / `fmt` / `staged` / `pack`) as overrides on top of the derived defaults.
+`toolingConfig` also accepts the Vite+ options (`lint` / `fmt` / `staged` / `pack`) as overrides on top of the derived defaults. (`node`/`react` are canonical at the top level, so they're not repeated under `lint`.)
 
 ### Strict by default
 
