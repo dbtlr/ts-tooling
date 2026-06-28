@@ -51,7 +51,8 @@
     "fmt:check": "vp fmt --check",
     "test": "vp test",
     "check": "vp check && vp test && vp pack",
-    "pack:dry": "pnpm pack --dry-run"
+    "pack:dry": "pnpm pack --dry-run",
+    "prepare": "vp config --no-agent"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
