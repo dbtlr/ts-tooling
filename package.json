@@ -32,10 +32,6 @@
       "types": "./dist/vite.d.mts",
       "default": "./dist/vite.mjs"
     },
-    "./package-json": {
-      "types": "./dist/package-json.d.mts",
-      "default": "./dist/package-json.mjs"
-    },
     "./tsconfig/base.json": "./tsconfig/base.json",
     "./tsconfig/node.json": "./tsconfig/node.json",
     "./tsconfig/bun.json": "./tsconfig/bun.json",
