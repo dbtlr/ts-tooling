@@ -61,16 +61,29 @@ export default defineConfig(
 
 ### Lint targets
 
-The lint helpers default to a **browser** target. Two flags adapt the rules to your runtime:
+The lint helpers default to a **browser** target. Two options adapt the rules to your runtime. Each accepts `boolean | string[]`:
 
-- `node?: boolean` (default `false`) — when `true`, enables the oxlint `node` plugin and allows Node.js builtin imports. When `false`, the `node` plugin is omitted and `import/no-nodejs-modules` is set to `error` (browser code may not import builtins). Set `true` for Node servers, CLIs, and packages.
-- `react?: boolean` (default `false`) — when `true`, enables the `react`, `react-perf`, and `jsx-a11y` plugins and disables `react/react-in-jsx-scope` for the React 17+ automatic JSX runtime.
+- `node?: boolean | string[]` (default `false`) — when `true`, enables the oxlint `node` plugin and allows Node.js builtin imports across the whole project. When `false`, the `node` plugin is omitted and `import/no-nodejs-modules` is set to `error` (browser code may not import builtins). Set `true` for Node servers, CLIs, and packages.
+- `react?: boolean | string[]` (default `false`) — when `true`, enables the `react`, `react-perf`, and `jsx-a11y` plugins, disables `react/react-in-jsx-scope` for the React 17+ automatic JSX runtime, and allows PascalCase component filenames.
 
 ```ts
 vitePlusPackage({ lint: { node: true } }); // Node server / CLI / package
 vitePlusBase({ lint: { react: true } }); // browser-only React app
 vitePlusBase({ lint: { node: true, react: true } }); // isomorphic React (SSR)
 ```
+
+Passing a **list of globs** instead of `true` scopes the target to just those files — it emits a `files`-scoped oxlint override rather than whole-project config. This is how a vite-plus **monorepo** (whose root `pnpm-workspace.yaml` centralizes lint config in the root `vite.config.ts`) addresses each package's target from one config:
+
+```ts
+vitePlusMonorepo({
+  lint: {
+    node: ['packages/api/**'], // node: builtins allowed only here
+    react: ['packages/web/**'], // React lint only here
+  },
+});
+```
+
+See [`examples/monorepo`](./examples/monorepo) for a runnable, CI-verified version.
 
 ## Verification
 
