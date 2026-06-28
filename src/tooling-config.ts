@@ -19,9 +19,12 @@ type ToolingConfigOptions = {
   readonly staged?: JsonObject | false;
 };
 
-// A glob list scopes a target to a monorepo's packages; a bare `true` means the
-// whole single project. Globs => this is a monorepo root: lint only, no test/vite.
-const isScopedTarget = (target: LintTarget | undefined): boolean => Array.isArray(target);
+// A non-empty glob list scopes a target to a monorepo's packages; a bare `true`
+// means the whole single project. Globs => this is a monorepo root: lint only, no
+// test/vite. An empty list is the target being off (per the LintTarget contract),
+// not a monorepo root, so it must not suppress the test/vite blocks.
+const isScopedTarget = (target: LintTarget | undefined): boolean =>
+  Array.isArray(target) && target.length > 0;
 
 const toolingConfig = (options: ToolingConfigOptions = {}) => {
   const { node, react, test, pack, lint, fmt, staged } = options;

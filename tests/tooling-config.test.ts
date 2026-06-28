@@ -60,6 +60,12 @@ describe('the toolingConfig helper', () => {
     expect(config.test).toBeUndefined();
   });
 
+  it('an empty glob target is "off", not a monorepo root, so the test block stays', () => {
+    // Per the LintTarget contract, `[]` means the target is off — it must not be
+    // mistaken for a glob list (monorepo root), which would drop the test block.
+    expect(toolingConfig({ node: [] }).test).toMatchObject({ environment: 'node' });
+  });
+
   it('passes staged through and disables it with staged:false', () => {
     expect(toolingConfig({ node: true }).staged).toStrictEqual({ '*': 'vp check --fix' });
     expect(toolingConfig({ node: true, staged: false }).staged).toBeUndefined();
