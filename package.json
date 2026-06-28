@@ -1,6 +1,6 @@
 {
   "name": "@dbtlr/tooling",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared TypeScript, Vitest, and Vite+ config for dbtlr projects — one toolingConfig() entry point.",
   "homepage": "https://github.com/dbtlr/ts-tooling#readme",
   "bugs": "https://github.com/dbtlr/ts-tooling/issues",
