@@ -43,3 +43,6 @@ jobs:
 
       - name: Examples
         run: pnpm run check:examples
+
+      - name: Pack (dry-run)
+        run: pnpm run pack:dry
