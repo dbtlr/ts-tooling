@@ -26,6 +26,17 @@ describe("vite-plus presets", () => {
     });
   });
 
+  it("resolves the ternary and boolean-matcher conflicts at base lint scope", () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      rules: {
+        "no-ternary": "off",
+        "unicorn/prefer-ternary": "off",
+        "vitest/prefer-to-be-falsy": "off",
+        "vitest/prefer-to-be-truthy": "off",
+      },
+    });
+  });
+
   it("enables type-aware checks and denyWarnings for monorepo", () => {
     expect(vitePlusMonorepo().lint).toMatchObject({
       options: { denyWarnings: true, typeAware: true, typeCheck: true },
