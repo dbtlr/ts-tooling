@@ -1,7 +1,7 @@
 import { compactObject } from "./types.js";
 import type { JsonObject } from "./types.js";
 
-export type VitePlusLintOptions = {
+type VitePlusLintOptions = {
   readonly typeAware?: boolean;
   readonly typeCheck?: boolean;
   readonly denyWarnings?: boolean;
@@ -11,15 +11,77 @@ export type VitePlusLintOptions = {
   readonly overrides?: readonly JsonObject[];
 };
 
-export type VitePlusPackageOptions = {
+type VitePlusPackageOptions = {
   readonly pack?: JsonObject;
   readonly lint?: VitePlusLintOptions;
   readonly fmt?: JsonObject;
   readonly staged?: JsonObject | false;
 };
 
-export function vitePlusBase(options: VitePlusPackageOptions = {}): JsonObject {
-  return compactObject({
+const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
+  categories: {
+    correctness: "error",
+    nursery: "off",
+    pedantic: "off",
+    perf: "error",
+    restriction: "off",
+    style: "warn",
+    suspicious: "error",
+  },
+  ignorePatterns: [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".turbo",
+    ".vite",
+    ...(options.ignores ?? []),
+  ],
+  options: compactObject({
+    denyWarnings: options.denyWarnings,
+    maxWarnings: options.maxWarnings,
+    typeAware: options.typeAware,
+    typeCheck: options.typeCheck,
+  }),
+  overrides: [
+    {
+      files: [
+        "tests/**/*.ts",
+        "tests/**/*.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+      ],
+      rules: {
+        "max-statements": "off",
+        "vitest/no-importing-vitest-globals": "off",
+        "vitest/prefer-importing-vitest-globals": "off",
+        // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
+        "vitest/prefer-to-be-falsy": "off",
+        "vitest/prefer-to-be-truthy": "off",
+      },
+    },
+    ...(options.overrides ?? []),
+  ],
+  plugins: ["typescript", "import", "eslint", "unicorn", "oxc", "promise", "node", "vitest"],
+  rules: {
+    "capitalized-comments": "off",
+    "import/no-named-export": "off",
+    "import/no-nodejs-modules": "off",
+    "no-duplicate-imports": ["warn", { allowSeparateTypeImports: true }],
+    "no-magic-numbers": "off",
+    "no-ternary": "off",
+    "sort-imports": "off",
+    "typescript/consistent-type-definitions": ["warn", "type"],
+    "unicorn/no-null": "off",
+    "vitest/prefer-importing-vitest-globals": "off",
+    ...options.rules,
+  },
+});
+
+const vitePlusBase = (options: VitePlusPackageOptions = {}): JsonObject =>
+  compactObject({
     fmt: {
       ignorePatterns: [
         "pnpm-lock.yaml",
@@ -36,21 +98,18 @@ export function vitePlusBase(options: VitePlusPackageOptions = {}): JsonObject {
     lint: vitePlusLint(options.lint),
     staged: options.staged === false ? undefined : (options.staged ?? { "*": "vp check --fix" }),
   });
-}
 
-export function vitePlusPackage(options: VitePlusPackageOptions = {}): JsonObject {
-  return {
-    ...vitePlusBase(options),
-    pack: {
-      dts: { tsgo: true },
-      exports: true,
-      ...options.pack,
-    },
-  };
-}
+const vitePlusPackage = (options: VitePlusPackageOptions = {}): JsonObject => ({
+  ...vitePlusBase(options),
+  pack: {
+    dts: { tsgo: true },
+    exports: true,
+    ...options.pack,
+  },
+});
 
-export function vitePlusMonorepo(options: VitePlusPackageOptions = {}): JsonObject {
-  return vitePlusBase({
+const vitePlusMonorepo = (options: VitePlusPackageOptions = {}): JsonObject =>
+  vitePlusBase({
     ...options,
     lint: {
       denyWarnings: true,
@@ -59,65 +118,6 @@ export function vitePlusMonorepo(options: VitePlusPackageOptions = {}): JsonObje
       ...options.lint,
     },
   });
-}
 
-function vitePlusLint(options: VitePlusLintOptions = {}): JsonObject {
-  return {
-    categories: {
-      correctness: "error",
-      nursery: "off",
-      pedantic: "off",
-      perf: "error",
-      restriction: "off",
-      style: "warn",
-      suspicious: "error",
-    },
-    ignorePatterns: [
-      "node_modules",
-      "dist",
-      "build",
-      "coverage",
-      ".turbo",
-      ".vite",
-      ...(options.ignores ?? []),
-    ],
-    options: compactObject({
-      typeAware: options.typeAware,
-      typeCheck: options.typeCheck,
-      denyWarnings: options.denyWarnings,
-      maxWarnings: options.maxWarnings,
-    }),
-    overrides: [
-      {
-        files: [
-          "tests/**/*.ts",
-          "tests/**/*.tsx",
-          "**/*.test.ts",
-          "**/*.test.tsx",
-          "**/*.spec.ts",
-          "**/*.spec.tsx",
-        ],
-        rules: {
-          "max-statements": "off",
-          "vitest/no-importing-vitest-globals": "off",
-          "vitest/prefer-importing-vitest-globals": "off",
-        },
-      },
-      ...(options.overrides ?? []),
-    ],
-    plugins: ["typescript", "import", "eslint", "unicorn", "oxc", "promise", "node", "vitest"],
-    rules: {
-      "capitalized-comments": "off",
-      "import/no-named-export": "off",
-      "import/no-nodejs-modules": "off",
-      "no-duplicate-imports": ["warn", { allowSeparateTypeImports: true }],
-      "no-magic-numbers": "off",
-      "no-ternary": "off",
-      "sort-imports": "off",
-      "typescript/consistent-type-definitions": ["warn", "type"],
-      "unicorn/no-null": "off",
-      "vitest/prefer-importing-vitest-globals": "off",
-      ...options.rules,
-    },
-  };
-}
+export { vitePlusBase, vitePlusMonorepo, vitePlusPackage };
+export type { VitePlusLintOptions, VitePlusPackageOptions };

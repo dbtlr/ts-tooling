@@ -1,7 +1,7 @@
 import { compactObject } from "./types.js";
 import type { JsonObject } from "./types.js";
 
-export type VitestProjectOptions = {
+type VitestProjectOptions = {
   readonly name?: string;
   readonly include?: readonly string[];
   readonly exclude?: readonly string[];
@@ -10,37 +10,36 @@ export type VitestProjectOptions = {
   readonly coverage?: JsonObject | false;
 };
 
-export type VitestEnvironment = "node" | "jsdom" | "happy-dom" | "browser";
+type VitestEnvironment = "node" | "jsdom" | "happy-dom" | "browser";
 
-export function vitestNode(options: VitestProjectOptions = {}): JsonObject {
-  return vitestConfig("node", options, ["src/**/*.test.ts", "tests/**/*.test.ts"]);
-}
-
-export function vitestReact(options: VitestProjectOptions = {}): JsonObject {
-  return vitestConfig("jsdom", { globals: true, ...options }, [
-    "src/**/*.test.{ts,tsx}",
-    "tests/**/*.test.{ts,tsx}",
-  ]);
-}
-
-export function vitestWorkspace(projects: readonly JsonObject[]): JsonObject {
-  return { test: { projects: [...projects] } };
-}
-
-function vitestConfig(
+const vitestConfig = (
   environment: VitestEnvironment,
   options: VitestProjectOptions,
   defaultInclude: readonly string[],
-): JsonObject {
-  return {
-    test: compactObject({
-      coverage: options.coverage === false ? undefined : options.coverage,
-      environment,
-      exclude: options.exclude ? [...options.exclude] : undefined,
-      globals: options.globals,
-      include: [...(options.include ?? defaultInclude)],
-      name: options.name,
-      setupFiles: options.setupFiles ? [...options.setupFiles] : undefined,
-    }),
-  };
-}
+): JsonObject => ({
+  test: compactObject({
+    coverage: options.coverage === false ? undefined : options.coverage,
+    environment,
+    exclude: options.exclude ? [...options.exclude] : undefined,
+    globals: options.globals,
+    include: [...(options.include ?? defaultInclude)],
+    name: options.name,
+    setupFiles: options.setupFiles ? [...options.setupFiles] : undefined,
+  }),
+});
+
+const vitestNode = (options: VitestProjectOptions = {}): JsonObject =>
+  vitestConfig("node", options, ["src/**/*.test.ts", "tests/**/*.test.ts"]);
+
+const vitestReact = (options: VitestProjectOptions = {}): JsonObject =>
+  vitestConfig("jsdom", { globals: true, ...options }, [
+    "src/**/*.test.{ts,tsx}",
+    "tests/**/*.test.{ts,tsx}",
+  ]);
+
+const vitestWorkspace = (projects: readonly JsonObject[]): JsonObject => ({
+  test: { projects: [...projects] },
+});
+
+export { vitestNode, vitestReact, vitestWorkspace };
+export type { VitestEnvironment, VitestProjectOptions };

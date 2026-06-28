@@ -8,6 +8,9 @@ export default defineConfig({
   ...vitePlusPackage({
     lint: { typeAware: true, typeCheck: true },
     pack: {
+      // Override the helper's experimental `dts: { tsgo: true }` default, which
+      // requires @typescript/native-preview. Use the bundled rolldown dts path.
+      dts: true,
       entry: [
         "src/index.ts",
         "src/oxlint.ts",
@@ -16,9 +19,6 @@ export default defineConfig({
         "src/vite.ts",
         "src/package-json.ts",
       ],
-      // Override the helper's experimental `dts: { tsgo: true }` default, which
-      // requires @typescript/native-preview. Use the bundled rolldown dts path.
-      dts: true,
       // Keep the hand-maintained exports map: auto-gen drops `types` conditions
       // and the static ./tsconfig/*.json preset exports that tsdown can't see.
       exports: false,

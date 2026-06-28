@@ -1,6 +1,6 @@
-export type PackageScriptProfile = "plain" | "vite-plus";
+type PackageScriptProfile = "plain" | "vite-plus";
 
-export function packageScripts(profile: PackageScriptProfile = "plain"): Record<string, string> {
+const packageScripts = (profile: PackageScriptProfile = "plain"): Record<string, string> => {
   if (profile === "vite-plus") {
     return {
       build: "vp pack",
@@ -20,11 +20,11 @@ export function packageScripts(profile: PackageScriptProfile = "plain"): Record<
     test: "vitest run",
     typecheck: "tsc --noEmit",
   };
-}
+};
 
-export function packageToolingDevDependencies(
+const packageToolingDevDependencies = (
   profile: PackageScriptProfile = "plain",
-): Record<string, string> {
+): Record<string, string> => {
   const base = {
     typescript: "^5.9.0",
     vitest: "^4.0.0",
@@ -35,4 +35,7 @@ export function packageToolingDevDependencies(
   }
 
   return { ...base, oxfmt: "^0.55.0", oxlint: "^1.70.0" };
-}
+};
+
+export { packageScripts, packageToolingDevDependencies };
+export type { PackageScriptProfile };
