@@ -1,9 +1,14 @@
 {
   "name": "@dbtlr/tooling",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "Shared TypeScript, Vitest, and Vite+ config for dbtlr projects — one toolingConfig() entry point.",
+  "homepage": "https://github.com/dbtlr/ts-tooling#readme",
+  "bugs": "https://github.com/dbtlr/ts-tooling/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbtlr/ts-tooling.git"
+  },
   "files": [
     "dist",
     "tsconfig",
@@ -36,6 +41,10 @@
     "./tsconfig/vitest.json": "./tsconfig/vitest.json",
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "vp pack",
     "lint": "vp lint",
@@ -45,7 +54,8 @@
     "check": "vp check && vp test && vp pack",
     "check:examples": "bash scripts/check-examples.sh",
     "pack:dry": "pnpm pack --dry-run",
-    "prepare": "vp config --no-agent"
+    "prepare": "vp config --no-agent",
+    "prepack": "vp pack"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
@@ -67,5 +77,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.0.0"
+  "packageManager": "pnpm@11.9.0"
 }
