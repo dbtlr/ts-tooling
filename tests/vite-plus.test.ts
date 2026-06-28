@@ -157,6 +157,13 @@ describe('vite-plus presets', () => {
     });
   });
 
+  it('excludes the generated CHANGELOG from formatting', () => {
+    // release-please/changesets own the CHANGELOG's format; oxfmt must not fight it.
+    expect(vitePlusBase().fmt).toMatchObject({
+      ignorePatterns: expect.arrayContaining(['CHANGELOG.md']),
+    });
+  });
+
   it('treats an empty glob list as no target', () => {
     const { lint } = vitePlusBase({ lint: { node: [], react: [] } });
 
