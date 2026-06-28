@@ -72,10 +72,5 @@
     "vite-plus": { "optional": true },
     "vitest": { "optional": true }
   },
-  "packageManager": "pnpm@11.0.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
-  }
+  "packageManager": "pnpm@11.0.0"
 }
