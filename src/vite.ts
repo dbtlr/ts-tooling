@@ -1,4 +1,4 @@
-import { type JsonObject, type JsonValue } from "./types.js";
+import type { JsonObject, JsonValue } from "./types.js";
 
 export type ViteReactAppOptions = {
   readonly plugins?: readonly JsonValue[];

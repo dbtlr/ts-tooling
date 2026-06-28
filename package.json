@@ -1,16 +1,16 @@
 {
   "name": "@dbtlr/tooling",
   "version": "0.0.0",
-  "description": "Tree-shakeable shared TypeScript, Oxlint, Vitest, Vite, and Vite+ config helpers for dbtlr projects.",
-  "type": "module",
-  "license": "MIT",
   "private": true,
-  "sideEffects": false,
+  "description": "Tree-shakeable shared TypeScript, Oxlint, Vitest, Vite, and Vite+ config helpers for dbtlr projects.",
+  "license": "MIT",
   "files": [
     "dist",
     "tsconfig",
     "README.md"
   ],
+  "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -45,20 +45,18 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsdown",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build",
+    "build": "vp pack",
+    "lint": "vp lint",
+    "format": "vp fmt",
+    "fmt:check": "vp fmt --check",
+    "test": "vp test",
+    "check": "vp check && vp test && vp pack",
     "pack:dry": "pnpm pack --dry-run"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
-    "oxlint": "^1.70.0",
-    "tsdown": "^0.16.0",
     "typescript": "^5.9.0",
-    "vite": "^7.0.0",
-    "vite-plus": "^0.2.1",
-    "vitest": "^4.0.0"
+    "vite-plus": "^0.2.1"
   },
   "peerDependencies": {
     "oxlint": ">=1.59.0",
@@ -67,10 +65,18 @@
     "vitest": ">=3.0.0"
   },
   "peerDependenciesMeta": {
-    "oxlint": { "optional": true },
-    "vite": { "optional": true },
-    "vite-plus": { "optional": true },
-    "vitest": { "optional": true }
+    "oxlint": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "vite-plus": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
   },
   "packageManager": "pnpm@11.0.0"
 }

@@ -1,4 +1,5 @@
-import { compactObject, type JsonObject } from "./types.js";
+import { compactObject } from "./types.js";
+import type { JsonObject } from "./types.js";
 
 export type VitePlusLintOptions = {
   readonly typeAware?: boolean;
@@ -52,9 +53,9 @@ export function vitePlusMonorepo(options: VitePlusPackageOptions = {}): JsonObje
   return vitePlusBase({
     ...options,
     lint: {
+      denyWarnings: true,
       typeAware: true,
       typeCheck: true,
-      denyWarnings: true,
       ...options.lint,
     },
   });
@@ -64,12 +65,12 @@ function vitePlusLint(options: VitePlusLintOptions = {}): JsonObject {
   return {
     categories: {
       correctness: "error",
-      suspicious: "error",
-      perf: "error",
-      style: "warn",
-      pedantic: "off",
-      restriction: "off",
       nursery: "off",
+      pedantic: "off",
+      perf: "error",
+      restriction: "off",
+      style: "warn",
+      suspicious: "error",
     },
     ignorePatterns: [
       "node_modules",
@@ -86,11 +87,30 @@ function vitePlusLint(options: VitePlusLintOptions = {}): JsonObject {
       denyWarnings: options.denyWarnings,
       maxWarnings: options.maxWarnings,
     }),
+    overrides: [
+      {
+        files: [
+          "tests/**/*.ts",
+          "tests/**/*.tsx",
+          "**/*.test.ts",
+          "**/*.test.tsx",
+          "**/*.spec.ts",
+          "**/*.spec.tsx",
+        ],
+        rules: {
+          "max-statements": "off",
+          "vitest/no-importing-vitest-globals": "off",
+          "vitest/prefer-importing-vitest-globals": "off",
+        },
+      },
+      ...(options.overrides ?? []),
+    ],
     plugins: ["typescript", "import", "eslint", "unicorn", "oxc", "promise", "node", "vitest"],
     rules: {
       "capitalized-comments": "off",
       "import/no-named-export": "off",
       "import/no-nodejs-modules": "off",
+      "no-duplicate-imports": ["warn", { allowSeparateTypeImports: true }],
       "no-magic-numbers": "off",
       "no-ternary": "off",
       "sort-imports": "off",
@@ -99,6 +119,5 @@ function vitePlusLint(options: VitePlusLintOptions = {}): JsonObject {
       "vitest/prefer-importing-vitest-globals": "off",
       ...options.rules,
     },
-    overrides: options.overrides ? [...options.overrides] : undefined,
   };
 }
