@@ -1,0 +1,4 @@
+{
+  "extends": "@dbtlr/tooling/tsconfig/react.json",
+  "include": ["src", "vite.config.ts"]
+}

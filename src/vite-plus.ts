@@ -84,6 +84,9 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
     'import/no-named-export': 'off',
     // Forbid Node builtins for browser targets; allow them only when lint.node is set.
     'import/no-nodejs-modules': options.node ? 'off' : 'error',
+    // Named exports are the house style (see import/no-named-export above), so
+    // don't nudge single-export modules toward a default export.
+    'import/prefer-default-export': 'off',
     'no-duplicate-imports': ['warn', { allowSeparateTypeImports: true }],
     'no-magic-numbers': 'off',
     'no-ternary': 'off',
@@ -102,6 +105,8 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
       ? {
           // React 17+ automatic JSX runtime — no in-scope React import needed.
           'react/react-in-jsx-scope': 'off',
+          // Allow PascalCase component filenames (e.g. App.tsx) alongside kebab-case.
+          'unicorn/filename-case': ['warn', { cases: { kebabCase: true, pascalCase: true } }],
         }
       : {}),
     ...options.rules,

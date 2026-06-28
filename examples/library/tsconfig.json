@@ -1,0 +1,9 @@
+{
+  "extends": "@dbtlr/tooling/tsconfig/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true
+  },
+  "include": ["src", "vite.config.ts"]
+}
