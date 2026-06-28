@@ -39,7 +39,7 @@ jobs:
       # `prepare` runs `vp config`; skip git-hook installation in CI.
       VITE_GIT_HOOKS: 0
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0 — reads packageManager (pnpm@11.9.0) from package.json
 
