@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Per-job least privilege; nothing at top level.
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        # Default filenames release-please-config.json + .release-please-manifest.json
+        # are auto-detected (manifest mode). Uses the built-in GITHUB_TOKEN.
+
+  publish:
+    name: Publish to npm
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC: required for npm trusted publishing.
+    env:
+      # `prepare` runs `vp config`; skip git-hook installation in CI.
+      VITE_GIT_HOOKS: 0
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # reads packageManager (pnpm@11.9.0) from package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint, format & type-check
+        run: pnpm exec vp check
+
+      - name: Test
+        run: pnpm exec vp test
+
+      - name: Build
+        run: pnpm exec vp pack
+
+      - name: Examples (dogfood gate)
+        run: pnpm run check:examples
+
+      - name: Publish to npm (OIDC, provenance automatic)
+        run: pnpm publish --no-git-checks
