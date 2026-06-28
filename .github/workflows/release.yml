@@ -43,6 +43,8 @@ jobs:
 
       - uses: pnpm/action-setup@v4 # reads packageManager (pnpm@11.9.0) from package.json
 
+      # Auth is via OIDC trusted publishing — no static credentials by design.
+      # Do NOT add a setup-node auth block or any npm credential here.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
