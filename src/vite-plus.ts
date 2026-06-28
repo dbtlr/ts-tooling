@@ -31,8 +31,12 @@ const REACT_RULES: JsonObject = {
   'unicorn/filename-case': ['warn', { cases: { kebabCase: true, pascalCase: true } }],
 };
 
+// oxlint plugins enabled for a Node target.
+const NODE_PLUGINS = ['node'] as const;
+
 // The rule a Node target needs: allow Node builtins (forbidden by the browser
-// baseline). The `node` plugin is enabled alongside it.
+// baseline). Enabled alongside the `node` plugin. Consumed by both the
+// whole-project and glob-scoped node paths so they can't drift.
 const NODE_RULES: JsonObject = {
   'import/no-nodejs-modules': 'off',
 };
@@ -67,7 +71,7 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
   // Glob-scoped targets become `overrides` fragments; they precede the standing
   // test-file override and any caller-supplied overrides.
   const targetOverrides: JsonObject[] = [
-    ...(nodeGlobs ? [scopedOverride(nodeGlobs, ['node'], NODE_RULES)] : []),
+    ...(nodeGlobs ? [scopedOverride(nodeGlobs, NODE_PLUGINS, NODE_RULES)] : []),
     ...(reactGlobs ? [scopedOverride(reactGlobs, REACT_PLUGINS, REACT_RULES)] : []),
   ];
 
@@ -126,15 +130,15 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
       'vitest',
       // Whole-project targets enable plugins here; glob-scoped targets enable them
       // in their `overrides` fragment instead (see targetOverrides).
-      ...(nodeWhole ? ['node'] : []),
+      ...(nodeWhole ? NODE_PLUGINS : []),
       ...(reactWhole ? REACT_PLUGINS : []),
     ],
     rules: {
       'capitalized-comments': 'off',
       'import/no-named-export': 'off',
-      // Forbid Node builtins for the browser baseline; a whole-project node target
-      // allows them globally, a glob-scoped one allows them only in its override.
-      'import/no-nodejs-modules': nodeWhole ? 'off' : 'error',
+      // Browser baseline forbids Node builtins; a whole-project node target lifts
+      // this via NODE_RULES below, a glob-scoped one only inside its override.
+      'import/no-nodejs-modules': 'error',
       // Named exports are the house style (see import/no-named-export above), so
       // don't nudge single-export modules toward a default export.
       'import/prefer-default-export': 'off',
@@ -152,7 +156,9 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
       // Disabled at base (not just in test files) so the conflict can't fire anywhere.
       'vitest/prefer-to-be-falsy': 'off',
       'vitest/prefer-to-be-truthy': 'off',
-      // Whole-project react target only; glob-scoped react rules live in its override.
+      // Whole-project targets only; glob-scoped rules live in their overrides.
+      // Spread last so a whole-project node target overrides the baseline above.
+      ...(nodeWhole ? NODE_RULES : {}),
       ...(reactWhole ? REACT_RULES : {}),
       ...options.rules,
     },
