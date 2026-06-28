@@ -40,3 +40,6 @@ jobs:
 
       - name: Build
         run: pnpm exec vp pack
+
+      - name: Examples
+        run: pnpm run check:examples

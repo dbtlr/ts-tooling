@@ -43,6 +43,7 @@
     "fmt:check": "vp fmt --check",
     "test": "vp test",
     "check": "vp check && vp test && vp pack",
+    "check:examples": "bash scripts/check-examples.sh",
     "pack:dry": "pnpm pack --dry-run",
     "prepare": "vp config --no-agent"
   },

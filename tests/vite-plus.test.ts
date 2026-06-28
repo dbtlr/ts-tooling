@@ -81,4 +81,18 @@ describe('vite-plus presets', () => {
       rules: { 'react/react-in-jsx-scope': 'off' },
     });
   });
+
+  it('disables prefer-default-export to match the named-export house style', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      rules: { 'import/prefer-default-export': 'off' },
+    });
+  });
+
+  it('allows PascalCase component filenames under react', () => {
+    expect(vitePlusPackage({ lint: { react: true } }).lint).toMatchObject({
+      rules: {
+        'unicorn/filename-case': ['warn', { cases: { kebabCase: true, pascalCase: true } }],
+      },
+    });
+  });
 });
