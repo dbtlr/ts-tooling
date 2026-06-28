@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { vitePlusBase, vitePlusMonorepo, vitePlusPackage } from "../src/vite-plus.js";
 
 describe("vite-plus presets", () => {

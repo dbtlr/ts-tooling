@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import pkg from "../package.json" with { type: "json" };
 
 const packageJson = pkg as typeof pkg & { readonly dependencies?: Record<string, string> };
@@ -12,8 +12,6 @@ describe("package metadata", () => {
 
   it("uses optional peer metadata for tool integrations", () => {
     expect.hasAssertions();
-    expect(packageJson.peerDependenciesMeta.oxlint.optional).toBe(true);
-    expect(packageJson.peerDependenciesMeta.vitest.optional).toBe(true);
     expect(packageJson.peerDependenciesMeta.vite.optional).toBe(true);
     expect(packageJson.peerDependenciesMeta["vite-plus"].optional).toBe(true);
   });
