@@ -7,9 +7,14 @@ type VitePlusLintOptions = {
   readonly denyWarnings?: boolean;
   readonly maxWarnings?: number;
   readonly ignores?: readonly string[];
+  readonly react?: boolean;
   readonly rules?: JsonObject;
   readonly overrides?: readonly JsonObject[];
 };
+
+// oxlint plugins enabled when `react: true`; the `react` plugin also carries the
+// rules-of-hooks / exhaustive-deps checks.
+const REACT_PLUGINS = ['react', 'react-perf', 'jsx-a11y'] as const;
 
 type VitePlusPackageOptions = {
   readonly pack?: JsonObject;
@@ -62,7 +67,17 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
     },
     ...(options.overrides ?? []),
   ],
-  plugins: ['typescript', 'import', 'eslint', 'unicorn', 'oxc', 'promise', 'node', 'vitest'],
+  plugins: [
+    'typescript',
+    'import',
+    'eslint',
+    'unicorn',
+    'oxc',
+    'promise',
+    'node',
+    'vitest',
+    ...(options.react ? REACT_PLUGINS : []),
+  ],
   rules: {
     'capitalized-comments': 'off',
     'import/no-named-export': 'off',
@@ -81,6 +96,12 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
     // Disabled at base (not just in test files) so the conflict can't fire anywhere.
     'vitest/prefer-to-be-falsy': 'off',
     'vitest/prefer-to-be-truthy': 'off',
+    ...(options.react
+      ? {
+          // React 17+ automatic JSX runtime — no in-scope React import needed.
+          'react/react-in-jsx-scope': 'off',
+        }
+      : {}),
     ...options.rules,
   },
 });

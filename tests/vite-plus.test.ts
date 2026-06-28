@@ -43,4 +43,18 @@ describe('vite-plus presets', () => {
       options: { denyWarnings: true, typeAware: true, typeCheck: true },
     });
   });
+
+  it('omits react plugins and rules by default', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      plugins: expect.not.arrayContaining(['react', 'react-perf', 'jsx-a11y']),
+      rules: expect.not.objectContaining({ 'react/react-in-jsx-scope': 'off' }),
+    });
+  });
+
+  it('adds react plugins and modern-JSX rule overrides when react is enabled', () => {
+    expect(vitePlusPackage({ lint: { react: true } }).lint).toMatchObject({
+      plugins: expect.arrayContaining(['react', 'react-perf', 'jsx-a11y']),
+      rules: { 'react/react-in-jsx-scope': 'off' },
+    });
+  });
 });
