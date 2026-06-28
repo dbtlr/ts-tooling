@@ -3,7 +3,6 @@ import { viteReactApp } from "../src/vite.js";
 
 describe("viteReactApp()", () => {
   it("returns empty plugins and no resolve by default", () => {
-    expect.hasAssertions();
     expect(viteReactApp()).toStrictEqual({
       plugins: [],
       resolve: undefined,
@@ -13,7 +12,6 @@ describe("viteReactApp()", () => {
   });
 
   it("maps alias into resolve and passes through server and test", () => {
-    expect.hasAssertions();
     const config = viteReactApp({
       alias: { "@": "/src" },
       server: { port: 3000 },
