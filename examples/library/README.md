@@ -1,13 +1,13 @@
 # library example
 
-A tree-shakeable, environment-agnostic library other packages import.
+An environment-agnostic library other packages import.
 
-- **Helper:** `vitePlusPackage({ pack: { entry: ['src/index.ts'] } })` — built with
-  `vp pack` (declaration files, ESM output).
+- **Config:** `toolingConfig({ pack: { entry: ['src/index.ts'] } })` — `pack` makes
+  it build with `vp pack` (declaration files, ESM output). No `node`/`react`, so it
+  keeps the default browser/universal lint target and Node test env.
 - **tsconfig:** `@dbtlr/tooling/tsconfig/base.json` with Bundler resolution.
 - **Lint target:** default (browser/universal) — Node builtins are forbidden, so the
   library stays portable across runtimes.
-- **Tests:** `vitestNode()`.
 
 Acts as a test case: `vp check` + `vp test` confirm a universal library lints with no
 Node builtins, type-checks, and is configured to package.
