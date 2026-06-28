@@ -17,4 +17,25 @@ describe("oxlint presets", () => {
     expect(config.plugins).toContain("react");
     expect(config.plugins).toContain("jsx-a11y");
   });
+
+  it("disables prefer-ternary so ternaries are allowed but not forced", () => {
+    expect(oxlint().rules).toMatchObject({
+      "no-ternary": "off",
+      "unicorn/prefer-ternary": "off",
+    });
+  });
+
+  it("disables the boolean-matcher rules at base for vitest configs", () => {
+    expect(oxlint({ tests: "vitest" }).rules).toMatchObject({
+      "vitest/prefer-to-be-falsy": "off",
+      "vitest/prefer-to-be-truthy": "off",
+    });
+  });
+
+  it("omits vitest rules when vitest is not enabled", () => {
+    const { rules } = oxlint({ tests: false });
+
+    expect(rules).not.toHaveProperty("vitest/prefer-to-be-falsy");
+    expect(rules).not.toHaveProperty("vitest/prefer-to-be-truthy");
+  });
 });

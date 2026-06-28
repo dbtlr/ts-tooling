@@ -48,9 +48,6 @@ const oxlintTestOverrides = (options: Pick<OxlintOptions, "tests"> = {}): JsonOb
         "vitest/no-importing-vitest-globals": "off",
         "vitest/prefer-expect-assertions": "off",
         "vitest/prefer-importing-vitest-globals": "off",
-        // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
-        "vitest/prefer-to-be-falsy": "off",
-        "vitest/prefer-to-be-truthy": "off",
       },
     },
   ];
@@ -105,6 +102,18 @@ const oxlintBase = (options: OxlintOptions = {}): JsonObject => {
       "sort-imports": "off",
       "typescript/consistent-type-definitions": ["warn", "type"],
       "unicorn/no-null": "off",
+      // Ternaries are allowed (no-ternary off) but not forced; prefer-ternary would
+      // rewrite else-if chains into nested ternaries, conflicting with unicorn/no-nested-ternary.
+      "unicorn/prefer-ternary": "off",
+      // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
+      // Scoped to vitest configs (the only ones with the plugin enabled) and applied at
+      // base so the conflict can't fire outside test files either.
+      ...(options.tests === "vitest"
+        ? {
+            "vitest/prefer-to-be-falsy": "off",
+            "vitest/prefer-to-be-truthy": "off",
+          }
+        : {}),
       ...options.rules,
     },
   });
