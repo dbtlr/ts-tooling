@@ -1,5 +1,5 @@
-import { compactObject } from "./types.js";
-import type { JsonObject } from "./types.js";
+import { compactObject } from './types.js';
+import type { JsonObject } from './types.js';
 
 type VitestProjectOptions = {
   readonly name?: string;
@@ -10,7 +10,7 @@ type VitestProjectOptions = {
   readonly coverage?: JsonObject | false;
 };
 
-type VitestEnvironment = "node" | "jsdom" | "happy-dom" | "browser";
+type VitestEnvironment = 'node' | 'jsdom' | 'happy-dom' | 'browser';
 
 const vitestConfig = (
   environment: VitestEnvironment,
@@ -29,12 +29,12 @@ const vitestConfig = (
 });
 
 const vitestNode = (options: VitestProjectOptions = {}): JsonObject =>
-  vitestConfig("node", options, ["src/**/*.test.ts", "tests/**/*.test.ts"]);
+  vitestConfig('node', options, ['src/**/*.test.ts', 'tests/**/*.test.ts']);
 
 const vitestReact = (options: VitestProjectOptions = {}): JsonObject =>
-  vitestConfig("jsdom", { globals: true, ...options }, [
-    "src/**/*.test.{ts,tsx}",
-    "tests/**/*.test.{ts,tsx}",
+  vitestConfig('jsdom', { globals: true, ...options }, [
+    'src/**/*.test.{ts,tsx}',
+    'tests/**/*.test.{ts,tsx}',
   ]);
 
 const vitestWorkspace = (projects: readonly JsonObject[]): JsonObject => ({
