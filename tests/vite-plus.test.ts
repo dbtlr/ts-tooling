@@ -95,4 +95,70 @@ describe('vite-plus presets', () => {
       },
     });
   });
+
+  it('scopes node to globs via an override, keeping the base browser target', () => {
+    const { lint } = vitePlusBase({ lint: { node: ['packages/api/**'] } });
+
+    // Base stays browser: no top-level node plugin, builtins still forbidden.
+    expect(lint).toMatchObject({
+      plugins: expect.not.arrayContaining(['node']),
+      rules: { 'import/no-nodejs-modules': 'error' },
+    });
+    // The override allows builtins only for the matched files.
+    expect(lint).toMatchObject({
+      overrides: expect.arrayContaining([
+        {
+          files: ['packages/api/**'],
+          plugins: ['node'],
+          rules: { 'import/no-nodejs-modules': 'off' },
+        },
+      ]),
+    });
+  });
+
+  it('scopes react to globs via an override, keeping the base free of react', () => {
+    const { lint } = vitePlusBase({ lint: { react: ['packages/web/**'] } });
+
+    expect(lint).toMatchObject({
+      plugins: expect.not.arrayContaining(['react', 'react-perf', 'jsx-a11y']),
+      rules: expect.not.objectContaining({ 'react/react-in-jsx-scope': 'off' }),
+    });
+    expect(lint).toMatchObject({
+      overrides: expect.arrayContaining([
+        {
+          files: ['packages/web/**'],
+          plugins: ['react', 'react-perf', 'jsx-a11y'],
+          rules: {
+            'react/react-in-jsx-scope': 'off',
+            'unicorn/filename-case': ['warn', { cases: { kebabCase: true, pascalCase: true } }],
+          },
+        },
+      ]),
+    });
+  });
+
+  it('mixes a whole-project node target with a glob-scoped react target', () => {
+    const { lint } = vitePlusBase({ lint: { node: true, react: ['packages/web/**'] } });
+
+    // node: true is whole-project (top-level), react is scoped (override only).
+    expect(lint).toMatchObject({
+      plugins: expect.arrayContaining(['node']),
+      rules: { 'import/no-nodejs-modules': 'off' },
+    });
+    expect(lint).toMatchObject({
+      overrides: expect.arrayContaining([expect.objectContaining({ files: ['packages/web/**'] })]),
+      plugins: expect.not.arrayContaining(['react']),
+    });
+  });
+
+  it('treats an empty glob list as no target', () => {
+    const { lint } = vitePlusBase({ lint: { node: [], react: [] } });
+
+    expect(lint).toMatchObject({
+      // No target fragment is prepended: index 0 is still the test-file override.
+      overrides: [{ rules: { 'vitest/no-importing-vitest-globals': 'off' } }],
+      plugins: expect.not.arrayContaining(['node', 'react']),
+      rules: { 'import/no-nodejs-modules': 'error' },
+    });
+  });
 });

@@ -17,51 +17,34 @@ root `vite.config.ts`** — a `lint` block inside a member package's own
 still honored; only lint/fmt are centralized.)
 
 So you cannot give `packages/web` `lint: { react: true }` and `packages/api`
-`lint: { node: true }` in their own configs. Instead the **root** config carries
-every target as a [`files`-scoped override fragment][oxlint-overrides]:
+`lint: { node: true }` in their own configs. Instead the **root** config names
+each target with the **globs it applies to**. A `node` / `react` lint option
+accepts either `true` (configure the whole project) or a list of globs — and a
+glob list emits a [`files`-scoped override fragment][oxlint-overrides] for just
+those files:
 
 ```ts
 // vite.config.ts (root)
 vitePlusMonorepo({
   lint: {
-    overrides: [
-      {
-        files: ['packages/web/**'],
-        plugins: ['react', 'react-perf', 'jsx-a11y'],
-        rules: {
-          /* … */
-        },
-      },
-      {
-        files: ['packages/api/**'],
-        plugins: ['node'],
-        rules: { 'import/no-nodejs-modules': 'off' },
-      },
-    ],
+    node: ['packages/api/**'], // allow node: builtins only here
+    react: ['packages/web/**'], // React plugins + modern-JSX rules only here
   },
 });
 ```
 
-oxlint applies the base config everywhere and layers each override onto its
-matching files, so React rules only touch `packages/web` and Node builtins are
-only allowed in `packages/api`.
+Under the hood each glob target becomes an override: oxlint applies the browser
+baseline everywhere and layers each target onto its matching files, so React
+rules only touch `packages/web` and Node builtins are only allowed in
+`packages/api`. (You can still drop to a raw `lint.overrides: [...]` fragment for
+anything the `node` / `react` targets don't cover.)
 
 ## Why this example is more than documentation
 
-`pnpm run check:examples` (and CI) runs `vp check` + `vp test` here. The override
-fragments are **load-bearing**: delete them and `vp check` fails —
-`import/no-nodejs-modules` on `api/server.ts`, `unicorn/filename-case` on
+`pnpm run check:examples` (and CI) runs `vp check` + `vp test` here. The glob
+targets are **load-bearing**: drop them (or the files they name) and `vp check`
+fails — `import/no-nodejs-modules` on `api/server.ts`, `unicorn/filename-case` on
 `web/App.tsx`. The example therefore _proves_ the pattern keeps working, it
 doesn't just describe it.
-
-## Known rough edge — hand-authored fragments
-
-The override fragments above **duplicate** what `lint: { react: true }` and
-`lint: { node: true }` already produce as whole-project config (the React plugin
-list, `react/react-in-jsx-scope`, the `filename-case` widening, the
-`no-nodejs-modules` toggle). There is no first-class helper to emit them as
-`files`-scoped fragments yet. Closing that gap — letting the `react` / `node`
-lint options accept a list of globs and emit the scoped override automatically —
-is the motivation this example was built to capture.
 
 [oxlint-overrides]: https://oxc.rs/docs/guide/usage/linter/config.html
