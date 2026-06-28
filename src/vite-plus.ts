@@ -41,6 +41,27 @@ const NODE_RULES: JsonObject = {
   'import/no-nodejs-modules': 'off',
 };
 
+// Too-opinionated rules turned off as house defaults, dogfooded from real
+// projects — they flag style preferences, not correctness. Re-enable any of
+// these per-project via `lint.rules`. (typescript/consistent-type-definitions
+// stays on, pinned to `type` — a house decision, not noise.) Keys sorted for
+// sort-keys; spread into the base rules so they don't interleave there.
+const RELAXED_DEFAULTS: JsonObject = {
+  'id-length': 'off',
+  'import/group-exports': 'off',
+  'init-declarations': 'off',
+  'max-params': 'off',
+  'max-statements': 'off',
+  'no-continue': 'off',
+  'prefer-destructuring': 'off',
+  'prefer-named-capture-group': 'off',
+  'react/jsx-max-depth': 'off',
+  'react/jsx-props-no-spreading': 'off',
+  'unicorn/catch-error-name': 'off',
+  'unicorn/no-await-expression-member': 'off',
+  'unicorn/numeric-separators-style': 'off',
+};
+
 // A target is "whole project" only when explicitly `true`.
 const isWholeProject = (target: LintTarget | undefined): boolean => target === true;
 
@@ -158,6 +179,9 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
       // Disabled at base (not just in test files) so the conflict can't fire anywhere.
       'vitest/prefer-to-be-falsy': 'off',
       'vitest/prefer-to-be-truthy': 'off',
+      // Spread (not inline) so these stay grouped with their rationale and don't
+      // have to interleave alphabetically with the keys above (sort-keys).
+      ...RELAXED_DEFAULTS,
       // Whole-project targets only; glob-scoped rules live in their overrides.
       // Spread last so a whole-project node target overrides the baseline above.
       ...(nodeWhole ? NODE_RULES : {}),

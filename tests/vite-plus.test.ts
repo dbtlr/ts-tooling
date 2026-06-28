@@ -164,6 +164,32 @@ describe('vite-plus presets', () => {
     });
   });
 
+  it('turns off the too-opinionated style rules by default', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      rules: {
+        'id-length': 'off',
+        'import/group-exports': 'off',
+        'init-declarations': 'off',
+        'max-params': 'off',
+        'max-statements': 'off',
+        'no-continue': 'off',
+        'prefer-destructuring': 'off',
+        'prefer-named-capture-group': 'off',
+        'react/jsx-max-depth': 'off',
+        'react/jsx-props-no-spreading': 'off',
+        'unicorn/catch-error-name': 'off',
+        'unicorn/no-await-expression-member': 'off',
+        'unicorn/numeric-separators-style': 'off',
+      },
+    });
+  });
+
+  it('keeps consistent-type-definitions pinned to type (oxlint defaults to interface)', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      rules: { 'typescript/consistent-type-definitions': ['warn', 'type'] },
+    });
+  });
+
   it('treats an empty glob list as no target', () => {
     const { lint } = vitePlusBase({ lint: { node: [], react: [] } });
 
