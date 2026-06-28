@@ -54,10 +54,11 @@ import { vitePlusPackage } from '@dbtlr/tooling/vite-plus';
 export default defineConfig(
   vitePlusPackage({
     pack: { entry: ['src/index.ts'] },
-    lint: { typeAware: true },
   }),
 );
 ```
+
+Two helpers: `vitePlusBase` (lint + format + staged) and `vitePlusPackage` (base plus a `pack` block for buildable/publishable packages). Both are **strict by default** — warnings fail (`denyWarnings`) and type-aware lint + type checking run (`typeAware`, `typeCheck`). Opt out of any of these per-flag, e.g. `lint: { typeCheck: false }`.
 
 ### Lint targets
 
@@ -75,7 +76,7 @@ vitePlusBase({ lint: { node: true, react: true } }); // isomorphic React (SSR)
 Passing a **list of globs** instead of `true` scopes the target to just those files — it emits a `files`-scoped oxlint override rather than whole-project config. This is how a vite-plus **monorepo** (whose root `pnpm-workspace.yaml` centralizes lint config in the root `vite.config.ts`) addresses each package's target from one config:
 
 ```ts
-vitePlusMonorepo({
+vitePlusBase({
   lint: {
     node: ['packages/api/**'], // node: builtins allowed only here
     react: ['packages/web/**'], // React lint only here

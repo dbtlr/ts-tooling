@@ -94,11 +94,13 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
       '.vite',
       ...(options.ignores ?? []),
     ],
+    // Strict by default: warnings fail, and type-aware lint + type checking run.
+    // This is the house gate; opt out of any of them per-flag with `false`.
     options: compactObject({
-      denyWarnings: options.denyWarnings,
+      denyWarnings: options.denyWarnings ?? true,
       maxWarnings: options.maxWarnings,
-      typeAware: options.typeAware,
-      typeCheck: options.typeCheck,
+      typeAware: options.typeAware ?? true,
+      typeCheck: options.typeCheck ?? true,
     }),
     overrides: [
       ...targetOverrides,
@@ -195,16 +197,5 @@ const vitePlusPackage = (options: VitePlusPackageOptions = {}): JsonObject => ({
   },
 });
 
-const vitePlusMonorepo = (options: VitePlusPackageOptions = {}): JsonObject =>
-  vitePlusBase({
-    ...options,
-    lint: {
-      denyWarnings: true,
-      typeAware: true,
-      typeCheck: true,
-      ...options.lint,
-    },
-  });
-
-export { vitePlusBase, vitePlusMonorepo, vitePlusPackage };
+export { vitePlusBase, vitePlusPackage };
 export type { VitePlusLintOptions, VitePlusPackageOptions };
