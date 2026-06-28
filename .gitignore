@@ -5,3 +5,4 @@ coverage
 .DS_Store
 .saga.toml
 .claude/settings.local.json
+.vite-hooks/_/

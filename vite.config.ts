@@ -25,4 +25,8 @@ export default defineConfig({
     },
   }),
   ...vitestNode(),
+  // Explicit top-level staged block so `vp config` (run from `prepare`) doesn't
+  // re-inject one. Scoped to source files so pre-commit `vp staged` skips configs
+  // like .gitignore and the shell hooks. `vp staged` reads this on pre-commit.
+  staged: { "*.{ts,tsx,js,json,md}": "vp check --fix" },
 });
