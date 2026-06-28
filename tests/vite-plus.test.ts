@@ -65,6 +65,16 @@ describe('vite-plus presets', () => {
     });
   });
 
+  it('combines node and react flags for an isomorphic target', () => {
+    expect(vitePlusPackage({ lint: { node: true, react: true } }).lint).toMatchObject({
+      plugins: expect.arrayContaining(['node', 'react', 'react-perf', 'jsx-a11y']),
+      rules: {
+        'import/no-nodejs-modules': 'off',
+        'react/react-in-jsx-scope': 'off',
+      },
+    });
+  });
+
   it('adds react plugins and modern-JSX rule overrides when react is enabled', () => {
     expect(vitePlusPackage({ lint: { react: true } }).lint).toMatchObject({
       plugins: expect.arrayContaining(['react', 'react-perf', 'jsx-a11y']),
