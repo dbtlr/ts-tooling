@@ -56,6 +56,7 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
       rules: {
         "max-statements": "off",
         "vitest/no-importing-vitest-globals": "off",
+        "vitest/prefer-expect-assertions": "off",
         "vitest/prefer-importing-vitest-globals": "off",
         // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
         "vitest/prefer-to-be-falsy": "off",
