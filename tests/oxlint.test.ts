@@ -3,11 +3,11 @@ import { oxlint, oxlintReact } from "../src/oxlint.js";
 
 describe("oxlint presets", () => {
   it("returns a node/vitest config without runtime tool imports", () => {
-    const config = oxlint({ target: "node", tests: "vitest", strictWarnings: true });
+    const config = oxlint({ strictWarnings: true, target: "node", tests: "vitest" });
 
     expect(config.plugins).toContain("typescript");
     expect(config.plugins).toContain("vitest");
-    expect(config.options).toEqual({ maxWarnings: 0 });
+    expect(config.options).toStrictEqual({ maxWarnings: 0 });
     expect(config.overrides).toHaveLength(1);
   });
 

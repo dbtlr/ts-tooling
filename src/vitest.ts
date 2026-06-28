@@ -1,4 +1,5 @@
-import { compactObject, type JsonObject } from "./types.js";
+import { compactObject } from "./types.js";
+import type { JsonObject } from "./types.js";
 
 export type VitestProjectOptions = {
   readonly name?: string;
@@ -26,16 +27,20 @@ export function vitestWorkspace(projects: readonly JsonObject[]): JsonObject {
   return { test: { projects: [...projects] } };
 }
 
-function vitestConfig(environment: VitestEnvironment, options: VitestProjectOptions, defaultInclude: readonly string[]): JsonObject {
+function vitestConfig(
+  environment: VitestEnvironment,
+  options: VitestProjectOptions,
+  defaultInclude: readonly string[],
+): JsonObject {
   return {
     test: compactObject({
-      name: options.name,
-      environment,
-      include: [...(options.include ?? defaultInclude)],
-      exclude: options.exclude ? [...options.exclude] : undefined,
-      setupFiles: options.setupFiles ? [...options.setupFiles] : undefined,
-      globals: options.globals,
       coverage: options.coverage === false ? undefined : options.coverage,
+      environment,
+      exclude: options.exclude ? [...options.exclude] : undefined,
+      globals: options.globals,
+      include: [...(options.include ?? defaultInclude)],
+      name: options.name,
+      setupFiles: options.setupFiles ? [...options.setupFiles] : undefined,
     }),
   };
 }

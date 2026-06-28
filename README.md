@@ -65,10 +65,12 @@ export default vitestNode({ include: ["src/**/*.test.ts"] });
 import { defineConfig } from "vite-plus";
 import { vitePlusPackage } from "@dbtlr/tooling/vite-plus";
 
-export default defineConfig(vitePlusPackage({
-  pack: { entry: ["src/index.ts"] },
-  lint: { typeAware: true },
-}));
+export default defineConfig(
+  vitePlusPackage({
+    pack: { entry: ["src/index.ts"] },
+    lint: { typeAware: true },
+  }),
+);
 ```
 
 ## Verification

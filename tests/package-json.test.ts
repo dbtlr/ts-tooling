@@ -5,25 +5,27 @@ const packageJson = pkg as typeof pkg & { readonly dependencies?: Record<string,
 
 describe("package metadata", () => {
   it("is tree-shakeable and has no runtime dependencies", () => {
-    expect(packageJson.sideEffects).toBe(false);
+    expect(packageJson.sideEffects).toBeFalsy();
     expect(packageJson.dependencies).toBeUndefined();
   });
 
   it("uses optional peer metadata for tool integrations", () => {
-    expect(packageJson.peerDependenciesMeta.oxlint.optional).toBe(true);
-    expect(packageJson.peerDependenciesMeta.vitest.optional).toBe(true);
-    expect(packageJson.peerDependenciesMeta.vite.optional).toBe(true);
-    expect(packageJson.peerDependenciesMeta["vite-plus"].optional).toBe(true);
+    expect(packageJson.peerDependenciesMeta.oxlint.optional).toBeTruthy();
+    expect(packageJson.peerDependenciesMeta.vitest.optional).toBeTruthy();
+    expect(packageJson.peerDependenciesMeta.vite.optional).toBeTruthy();
+    expect(packageJson.peerDependenciesMeta["vite-plus"].optional).toBeTruthy();
   });
 
   it("exports subpaths for tree-shakeable consumption", () => {
-    expect(Object.keys(packageJson.exports)).toEqual(expect.arrayContaining([
-      ".",
-      "./oxlint",
-      "./vitest",
-      "./vite-plus",
-      "./vite",
-      "./tsconfig/node.json",
-    ]));
+    expect(Object.keys(packageJson.exports)).toStrictEqual(
+      expect.arrayContaining([
+        ".",
+        "./oxlint",
+        "./vitest",
+        "./vite-plus",
+        "./vite",
+        "./tsconfig/node.json",
+      ]),
+    );
   });
 });

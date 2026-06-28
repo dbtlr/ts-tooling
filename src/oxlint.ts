@@ -1,4 +1,5 @@
-import { compactObject, type JsonObject } from "./types.js";
+import { compactObject } from "./types.js";
+import type { JsonObject } from "./types.js";
 
 export type OxlintTarget = "node" | "bun" | "browser" | "react";
 export type OxlintTests = "vitest" | false;
@@ -15,7 +16,15 @@ export type OxlintOptions = {
   readonly overrides?: readonly JsonObject[];
 };
 
-const basePlugins = ["eslint", "typescript", "oxc", "import", "unicorn", "promise", "node"] as const;
+const basePlugins = [
+  "eslint",
+  "typescript",
+  "oxc",
+  "import",
+  "unicorn",
+  "promise",
+  "node",
+] as const;
 const reactPlugins = ["react", "jsx-a11y"] as const;
 const testPlugins = ["vitest"] as const;
 
@@ -28,15 +37,14 @@ export function oxlintBase(options: OxlintOptions = {}): JsonObject {
   ];
 
   return compactObject({
-    plugins: [...new Set(plugins)],
     categories: {
       correctness: "error",
-      suspicious: "error",
-      perf: "error",
-      style: "warn",
-      pedantic: "off",
-      restriction: "off",
       nursery: "off",
+      pedantic: "off",
+      perf: "error",
+      restriction: "off",
+      style: "warn",
+      suspicious: "error",
     },
     env: compactObject({
       builtin: true,
@@ -58,18 +66,19 @@ export function oxlintBase(options: OxlintOptions = {}): JsonObject {
       typeCheck: options.typeCheck,
       maxWarnings: options.strictWarnings ? 0 : undefined,
     }),
+    overrides: [...oxlintTestOverrides(options), ...(options.overrides ?? [])],
+    plugins: [...new Set(plugins)],
     rules: {
-      "no-ternary": "off",
-      "sort-imports": "off",
-      "no-magic-numbers": "off",
       "import/no-named-export": "off",
       "import/no-nodejs-modules": "off",
+      "no-duplicate-imports": ["warn", { allowSeparateTypeImports: true }],
+      "no-magic-numbers": "off",
+      "no-ternary": "off",
+      "sort-imports": "off",
       "typescript/consistent-type-definitions": ["warn", "type"],
       "unicorn/no-null": "off",
-      "no-duplicate-imports": ["warn", { allowSeparateTypeImports: true }],
       ...options.rules,
     },
-    overrides: [...oxlintTestOverrides(options), ...(options.overrides ?? [])],
   });
 }
 
@@ -82,15 +91,24 @@ export function oxlintReact(options: Omit<OxlintOptions, "target"> = {}): JsonOb
 }
 
 export function oxlintTestOverrides(options: Pick<OxlintOptions, "tests"> = {}): JsonObject[] {
-  if (options.tests !== "vitest") return [];
+  if (options.tests !== "vitest") {
+    return [];
+  }
 
   return [
     {
-      files: ["tests/**/*.ts", "tests/**/*.tsx", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      files: [
+        "tests/**/*.ts",
+        "tests/**/*.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+      ],
       rules: {
-        "vitest/prefer-importing-vitest-globals": "off",
-        "vitest/no-importing-vitest-globals": "off",
         "max-statements": "off",
+        "vitest/no-importing-vitest-globals": "off",
+        "vitest/prefer-importing-vitest-globals": "off",
       },
     },
   ];
