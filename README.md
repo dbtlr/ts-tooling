@@ -5,10 +5,11 @@ Tree-shakeable shared config helpers for Drew's TypeScript projects.
 The package is intentionally split into subpath exports so consumers only import the tooling surface they need:
 
 ```ts
-import { oxlint } from "@dbtlr/tooling/oxlint";
 import { vitestNode } from "@dbtlr/tooling/vitest";
 import { vitePlusPackage } from "@dbtlr/tooling/vite-plus";
 ```
+
+Linting and formatting are delivered through Vite+ (`vp lint` / `vp fmt`), which bundles Oxlint — there is no standalone Oxlint subpath. Configure lint rules via the `lint` option on the Vite+ helpers below.
 
 ## Dependency policy
 
@@ -35,21 +36,6 @@ Available presets:
 - `@dbtlr/tooling/tsconfig/react.json`
 - `@dbtlr/tooling/tsconfig/monorepo.json`
 - `@dbtlr/tooling/tsconfig/vitest.json`
-
-## Oxlint
-
-```ts
-// oxlint.config.ts
-import { defineConfig } from "oxlint";
-import { oxlint } from "@dbtlr/tooling/oxlint";
-
-export default defineConfig({
-  extends: [oxlint({ target: "node", tests: "vitest", typeAware: true, strictWarnings: true })],
-  rules: {
-    "max-statements": ["warn", 40],
-  },
-});
-```
 
 ## Vitest
 
