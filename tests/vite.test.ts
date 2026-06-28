@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { viteReactApp } from "../src/vite.js";
 
 describe("viteReactApp()", () => {
