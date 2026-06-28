@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { vitePlusBase, vitePlusMonorepo, vitePlusPackage } from '../src/vite-plus.js';
+import { vitePlusBase, vitePlusPackage } from '../src/vite-plus.js';
 
 describe('vite-plus presets', () => {
   it('builds a base config with fmt, lint, and staged blocks', () => {
@@ -38,9 +38,15 @@ describe('vite-plus presets', () => {
     });
   });
 
-  it('enables type-aware checks and denyWarnings for monorepo', () => {
-    expect(vitePlusMonorepo().lint).toMatchObject({
+  it('is strict by default: warnings fail, type-aware lint and type checking run', () => {
+    expect(vitePlusBase().lint).toMatchObject({
       options: { denyWarnings: true, typeAware: true, typeCheck: true },
+    });
+  });
+
+  it('lets a consumer opt out of a strict default per-flag', () => {
+    expect(vitePlusBase({ lint: { typeCheck: false } }).lint).toMatchObject({
+      options: { denyWarnings: true, typeAware: true, typeCheck: false },
     });
   });
 

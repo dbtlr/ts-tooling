@@ -25,7 +25,7 @@ those files:
 
 ```ts
 // vite.config.ts (root)
-vitePlusMonorepo({
+vitePlusBase({
   lint: {
     node: ['packages/api/**'], // allow node: builtins only here
     react: ['packages/web/**'], // React plugins + modern-JSX rules only here

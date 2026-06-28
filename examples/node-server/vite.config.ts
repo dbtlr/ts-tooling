@@ -3,6 +3,6 @@ import { vitestNode } from '@dbtlr/tooling/vitest';
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
-  ...vitePlusBase({ lint: { node: true, typeAware: true } }),
+  ...vitePlusBase({ lint: { node: true } }),
   ...vitestNode(),
 });

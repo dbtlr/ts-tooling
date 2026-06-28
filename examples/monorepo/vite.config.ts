@@ -1,4 +1,4 @@
-import { vitePlusMonorepo } from '@dbtlr/tooling/vite-plus';
+import { vitePlusBase } from '@dbtlr/tooling/vite-plus';
 import { defineConfig } from 'vite-plus';
 
 // Centralized monorepo lint config.
@@ -14,7 +14,7 @@ import { defineConfig } from 'vite-plus';
 // Node baseline still forbids `node:` builtins everywhere except `packages/api`,
 // and React lint touches only `packages/web`.
 export default defineConfig(
-  vitePlusMonorepo({
+  vitePlusBase({
     lint: {
       node: ['packages/api/**'],
       react: ['packages/web/**'],

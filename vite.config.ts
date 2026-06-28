@@ -7,7 +7,7 @@ import { vitestNode } from './src/vitest.js';
 // `vp pack` (build), `vp lint`, `vp fmt`, `vp test`, `vp check`, `vp staged`.
 export default defineConfig({
   ...vitePlusPackage({
-    lint: { ignores: ['examples'], node: true, typeAware: true, typeCheck: true },
+    lint: { ignores: ['examples'], node: true },
     pack: {
       // Override the helper's experimental `dts: { tsgo: true }` default, which
       // requires @typescript/native-preview. Use the bundled rolldown dts path.
