@@ -11,14 +11,7 @@ export default defineConfig({
       // Override the helper's experimental `dts: { tsgo: true }` default, which
       // requires @typescript/native-preview. Use the bundled rolldown dts path.
       dts: true,
-      entry: [
-        "src/index.ts",
-        "src/oxlint.ts",
-        "src/vitest.ts",
-        "src/vite-plus.ts",
-        "src/vite.ts",
-        "src/package-json.ts",
-      ],
+      entry: ["src/index.ts", "src/oxlint.ts", "src/vitest.ts", "src/vite-plus.ts", "src/vite.ts"],
       // Keep the hand-maintained exports map: auto-gen drops `types` conditions
       // and the static ./tsconfig/*.json preset exports that tsdown can't see.
       exports: false,
