@@ -1,12 +1,5 @@
-import { viteReactApp } from '@dbtlr/tooling/vite';
-import { vitePlusBase } from '@dbtlr/tooling/vite-plus';
-import { vitestReact } from '@dbtlr/tooling/vitest';
-import { defineConfig } from 'vite-plus';
+import { toolingConfig } from '@dbtlr/tooling';
 
-// Isomorphic React: both flags on — `react` for the UI, `node` so the server
+// Isomorphic React: `react` for the UI (lint + jsdom test), `node` so the server
 // entry may import Node builtins (`node:http`).
-export default defineConfig({
-  ...vitePlusBase({ lint: { node: true, react: true } }),
-  ...viteReactApp(),
-  ...vitestReact(),
-});
+export default toolingConfig({ node: true, react: true });

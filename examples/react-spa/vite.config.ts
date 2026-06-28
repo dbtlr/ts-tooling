@@ -1,13 +1,6 @@
-import { viteReactApp } from '@dbtlr/tooling/vite';
-import { vitePlusBase } from '@dbtlr/tooling/vite-plus';
-import { vitestReact } from '@dbtlr/tooling/vitest';
-import { defineConfig } from 'vite-plus';
+import { toolingConfig } from '@dbtlr/tooling';
 
-// Browser-only React: `react: true` enables the React lint plugins; `node` stays
-// off, so Node builtins are forbidden. Add `@vitejs/plugin-react` to
-// `viteReactApp({ plugins: [react()] })` for a real dev/build server.
-export default defineConfig({
-  ...vitePlusBase({ lint: { react: true } }),
-  ...viteReactApp(),
-  ...vitestReact(),
-});
+// Browser-only React: `react` enables the React lint plugins, the jsdom test
+// env, and the vite react-app block. Add `@vitejs/plugin-react` via the granular
+// `viteReactApp({ plugins: [react()] })` helper for a real dev/build server.
+export default toolingConfig({ react: true });
