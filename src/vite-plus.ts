@@ -25,8 +25,12 @@ type VitePlusLintOptions = {
 const REACT_PLUGINS = ['react', 'react-perf', 'jsx-a11y'] as const;
 
 // The rule tweaks a React target needs: the modern automatic JSX runtime (no
-// in-scope React import) and PascalCase component filenames.
+// in-scope React import), PascalCase component filenames, and two relaxed
+// defaults that are react-plugin rules (so they live here, only emitted when the
+// react plugin is loaded — both whole-project and glob-scoped).
 const REACT_RULES: JsonObject = {
+  'react/jsx-max-depth': 'off',
+  'react/jsx-props-no-spreading': 'off',
   'react/react-in-jsx-scope': 'off',
   'unicorn/filename-case': ['warn', { cases: { kebabCase: true, pascalCase: true } }],
 };
@@ -41,11 +45,12 @@ const NODE_RULES: JsonObject = {
   'import/no-nodejs-modules': 'off',
 };
 
-// Too-opinionated rules turned off as house defaults, dogfooded from real
-// projects — they flag style preferences, not correctness. Re-enable any of
-// these per-project via `lint.rules`. (typescript/consistent-type-definitions
-// stays on, pinned to `type` — a house decision, not noise.) Keys sorted for
-// sort-keys; spread into the base rules so they don't interleave there.
+// Too-opinionated, runtime-agnostic rules turned off as house defaults,
+// dogfooded from real projects — they flag style preferences, not correctness.
+// Re-enable any per-project via `lint.rules`. (React-plugin relaxations live in
+// REACT_RULES so they only emit when the react plugin is loaded;
+// typescript/consistent-type-definitions stays on, pinned to `type`.) Keys
+// sorted for sort-keys; spread into the base rules so they don't interleave.
 const RELAXED_DEFAULTS: JsonObject = {
   'id-length': 'off',
   'import/group-exports': 'off',
@@ -55,8 +60,6 @@ const RELAXED_DEFAULTS: JsonObject = {
   'no-continue': 'off',
   'prefer-destructuring': 'off',
   'prefer-named-capture-group': 'off',
-  'react/jsx-max-depth': 'off',
-  'react/jsx-props-no-spreading': 'off',
   'unicorn/catch-error-name': 'off',
   'unicorn/no-await-expression-member': 'off',
   'unicorn/numeric-separators-style': 'off',
