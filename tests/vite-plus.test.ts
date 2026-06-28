@@ -51,6 +51,20 @@ describe('vite-plus presets', () => {
     });
   });
 
+  it('defaults to a browser target: no node plugin, node builtins forbidden', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      plugins: expect.not.arrayContaining(['node']),
+      rules: { 'import/no-nodejs-modules': 'error' },
+    });
+  });
+
+  it('adds the node plugin and allows node builtins when node is enabled', () => {
+    expect(vitePlusPackage({ lint: { node: true } }).lint).toMatchObject({
+      plugins: expect.arrayContaining(['node']),
+      rules: { 'import/no-nodejs-modules': 'off' },
+    });
+  });
+
   it('adds react plugins and modern-JSX rule overrides when react is enabled', () => {
     expect(vitePlusPackage({ lint: { react: true } }).lint).toMatchObject({
       plugins: expect.arrayContaining(['react', 'react-perf', 'jsx-a11y']),

@@ -7,6 +7,7 @@ type VitePlusLintOptions = {
   readonly denyWarnings?: boolean;
   readonly maxWarnings?: number;
   readonly ignores?: readonly string[];
+  readonly node?: boolean;
   readonly react?: boolean;
   readonly rules?: JsonObject;
   readonly overrides?: readonly JsonObject[];
@@ -74,14 +75,15 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => ({
     'unicorn',
     'oxc',
     'promise',
-    'node',
     'vitest',
+    ...(options.node ? ['node'] : []),
     ...(options.react ? REACT_PLUGINS : []),
   ],
   rules: {
     'capitalized-comments': 'off',
     'import/no-named-export': 'off',
-    'import/no-nodejs-modules': 'off',
+    // Forbid Node builtins for browser targets; allow them only when lint.node is set.
+    'import/no-nodejs-modules': options.node ? 'off' : 'error',
     'no-duplicate-imports': ['warn', { allowSeparateTypeImports: true }],
     'no-magic-numbers': 'off',
     'no-ternary': 'off',
