@@ -22,7 +22,7 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
         # Default filenames release-please-config.json + .release-please-manifest.json
         # are auto-detected (manifest mode). Uses the built-in GITHUB_TOKEN.
@@ -39,13 +39,13 @@ jobs:
       # `prepare` runs `vp config`; skip git-hook installation in CI.
       VITE_GIT_HOOKS: 0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - uses: pnpm/action-setup@v4 # reads packageManager (pnpm@11.9.0) from package.json
+      - uses: pnpm/action-setup@a15d269cd4658e1107c09f1fabf4cbd7bd1f308a # v4.4.0 — reads packageManager (pnpm@11.9.0) from package.json
 
       # Auth is via OIDC trusted publishing — no static credentials by design.
       # Do NOT add a setup-node auth block or any npm credential here.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: pnpm
