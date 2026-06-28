@@ -3,6 +3,7 @@ import { oxlint, oxlintReact } from "../src/oxlint.js";
 
 describe("oxlint presets", () => {
   it("returns a node/vitest config without runtime tool imports", () => {
+    expect.hasAssertions();
     const config = oxlint({ strictWarnings: true, target: "node", tests: "vitest" });
 
     expect(config.plugins).toContain("typescript");
@@ -12,6 +13,7 @@ describe("oxlint presets", () => {
   });
 
   it("adds react plugins for react targets", () => {
+    expect.hasAssertions();
     const config = oxlintReact();
 
     expect(config.plugins).toContain("react");
