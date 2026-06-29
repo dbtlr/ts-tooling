@@ -25,6 +25,6 @@ export default defineConfig({
   plugins: [react()],
   test: testProjects([
     testNode({ include: ['packages/api/**/*.test.ts'], name: 'api' }),
-    testReact({ include: ['packages/web/**/*.test.{ts,tsx}'], name: 'web', setup: false }),
+    testReact({ include: ['packages/web/**/*.test.{ts,tsx}'], name: 'web' }),
   ]),
 });
