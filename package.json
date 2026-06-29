@@ -21,18 +21,6 @@
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
     },
-    "./vitest": {
-      "types": "./dist/vitest.d.mts",
-      "default": "./dist/vitest.mjs"
-    },
-    "./vite-plus": {
-      "types": "./dist/vite-plus.d.mts",
-      "default": "./dist/vite-plus.mjs"
-    },
-    "./vite": {
-      "types": "./dist/vite.d.mts",
-      "default": "./dist/vite.mjs"
-    },
     "./setup/dom": {
       "types": "./dist/setup/dom.d.mts",
       "default": "./dist/setup/dom.mjs"
