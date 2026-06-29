@@ -38,6 +38,21 @@ describe('the toolingConfig helper', () => {
     expect(config.test).toBeUndefined();
   });
 
+  it('object-form glob target is a scoped monorepo root: scoped override, no test block', () => {
+    const config = toolingConfig({
+      react: { files: ['packages/web/**'], rules: { 'react/jsx-max-depth': 'warn' } },
+    });
+    expect(config.lint).toMatchObject({
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: ['packages/web/**'],
+          rules: expect.objectContaining({ 'react/jsx-max-depth': 'warn' }),
+        }),
+      ]),
+    });
+    expect(config.test).toBeUndefined();
+  });
+
   it('test override: test:false omits the test block; test:"node" forces node env', () => {
     expect(toolingConfig({ react: true, test: false }).test).toBeUndefined();
     expect(toolingConfig({ react: true, test: 'node' }).test).toMatchObject({

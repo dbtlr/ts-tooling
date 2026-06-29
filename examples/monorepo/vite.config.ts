@@ -13,7 +13,16 @@ import { toolingConfig } from '@dbtlr/tooling';
 // root, so no project-wide test/vite block is added — members own those. The Node
 // baseline still forbids `node:` builtins everywhere except `packages/api`, and
 // React lint touches only `packages/web`.
+//
+// The react target uses the OBJECT form `{ files, rules }` instead of a bare glob
+// list: the `rules` are folded into the same scoped override as the target's own
+// react rules, so a consumer can tune them. Here we disable
+// `react-perf/jsx-no-new-function-as-prop` for the web package — without this,
+// the inline handler in packages/web/src/App.tsx would fail lint.
 export default toolingConfig({
   node: ['packages/api/**'],
-  react: ['packages/web/**'],
+  react: {
+    files: ['packages/web/**'],
+    rules: { 'react-perf/jsx-no-new-function-as-prop': 'off' },
+  },
 });

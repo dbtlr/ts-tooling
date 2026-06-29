@@ -1,12 +1,28 @@
+import type { UserConfig } from 'vite-plus';
+
 import { compactObject } from './types.js';
 import type { JsonObject } from './types.js';
+
+// A single oxlint override entry, derived from vite-plus's public config type so
+// it stays in lockstep with the toolchain (rather than a hand-rolled copy that
+// drifts). Lets a consumer pass a typed override to `lint.overrides` without an
+// `as unknown as JsonObject[]` cast.
+type LintOverride = NonNullable<NonNullable<UserConfig['lint']>['overrides']>[number];
 
 // A lint target — `node` or `react` — is a set of files the target applies to.
 // `true` means the whole project (config emitted at the top level); a list of
 // globs means just those files (config emitted as a scoped `overrides` fragment),
 // which is how a mixed-target monorepo's centralized root config addresses each
 // package. `false`/omitted/`[]` means the target is off.
-type LintTarget = boolean | readonly string[];
+//
+// The object form `{ files, rules }` is a glob target that also carries consumer
+// rules; those rules are merged into the target's OWN scoped override (after the
+// target defaults), so a consumer can tune or disable a target rule for the same
+// globs. They win because they share one override — not a later one a host
+// toolchain might reorder. Whole-project targets don't need this: their rules are
+// tunable via `lint.rules` (spread last into the base rules).
+type ScopedTarget = { readonly files: readonly string[]; readonly rules?: JsonObject };
+type LintTarget = boolean | readonly string[] | ScopedTarget;
 
 type VitePlusLintOptions = {
   readonly typeAware?: boolean;
@@ -17,7 +33,7 @@ type VitePlusLintOptions = {
   readonly node?: LintTarget;
   readonly react?: LintTarget;
   readonly rules?: JsonObject;
-  readonly overrides?: readonly JsonObject[];
+  readonly overrides?: readonly LintOverride[];
 };
 
 // oxlint plugins enabled for a React target; the `react` plugin also carries the
@@ -70,9 +86,20 @@ const RELAXED_DEFAULTS: JsonObject = {
 // A target is "whole project" only when explicitly `true`.
 const isWholeProject = (target: LintTarget | undefined): boolean => target === true;
 
-// Non-empty glob list → the target is scoped to those files; otherwise undefined.
-const targetGlobs = (target: LintTarget | undefined): readonly string[] | undefined =>
-  Array.isArray(target) && target.length > 0 ? target : undefined;
+// The `{ files, rules }` object form (not a boolean, not a glob array).
+const isScopedObject = (target: LintTarget | undefined): target is ScopedTarget =>
+  typeof target === 'object' && !Array.isArray(target);
+
+// Non-empty glob list (bare array or the object form's `files`) → the target is
+// scoped to those files; otherwise undefined.
+const targetGlobs = (target: LintTarget | undefined): readonly string[] | undefined => {
+  const globs = isScopedObject(target) ? target.files : target;
+  return Array.isArray(globs) && globs.length > 0 ? globs : undefined;
+};
+
+// Consumer rules carried by the object form, merged into the scoped override.
+const targetRules = (target: LintTarget | undefined): JsonObject | undefined =>
+  isScopedObject(target) ? target.rules : undefined;
 
 // Build the scoped `overrides` fragment for a glob-targeted plugin set + rules.
 const scopedOverride = (
@@ -97,8 +124,17 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
   // Glob-scoped targets become `overrides` fragments; they precede the standing
   // test-file override and any caller-supplied overrides.
   const targetOverrides: JsonObject[] = [
-    ...(nodeGlobs ? [scopedOverride(nodeGlobs, NODE_PLUGINS, NODE_RULES)] : []),
-    ...(reactGlobs ? [scopedOverride(reactGlobs, REACT_PLUGINS, REACT_RULES)] : []),
+    ...(nodeGlobs
+      ? [scopedOverride(nodeGlobs, NODE_PLUGINS, { ...NODE_RULES, ...targetRules(options.node) })]
+      : []),
+    ...(reactGlobs
+      ? [
+          scopedOverride(reactGlobs, REACT_PLUGINS, {
+            ...REACT_RULES,
+            ...targetRules(options.react),
+          }),
+        ]
+      : []),
   ];
 
   return {
@@ -163,7 +199,12 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
           'vitest/require-top-level-describe': 'off',
         },
       },
-      ...(options.overrides ?? []),
+      // LintOverride is the typed consumer surface; oxlint overrides are JSON
+      // data lacking only an index signature, so bridge to JsonObject internally.
+      // The cast lives here, not on the consumer's call site — the whole point of
+      // the typed option.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      ...((options.overrides ?? []) as unknown as readonly JsonObject[]),
     ],
     plugins: [
       'typescript',
@@ -247,4 +288,4 @@ const vitePlusPackage = (options: VitePlusPackageOptions = {}): JsonObject => ({
 });
 
 export { vitePlusBase, vitePlusPackage };
-export type { VitePlusLintOptions, VitePlusPackageOptions };
+export type { LintOverride, LintTarget, ScopedTarget, VitePlusLintOptions, VitePlusPackageOptions };
