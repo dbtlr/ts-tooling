@@ -169,7 +169,9 @@ describe('vite-plus presets', () => {
   it('turns off the runtime-agnostic too-opinionated rules by default', () => {
     expect(vitePlusBase().lint).toMatchObject({
       rules: {
+        'func-style': 'off',
         'id-length': 'off',
+        'import/exports-last': 'off',
         'import/group-exports': 'off',
         'init-declarations': 'off',
         'max-params': 'off',
@@ -181,6 +183,27 @@ describe('vite-plus presets', () => {
         'unicorn/no-await-expression-member': 'off',
         'unicorn/numeric-separators-style': 'off',
       },
+    });
+  });
+
+  it('relaxes the too-opinionated and unsafe-autofix vitest rules in the test override', () => {
+    expect(vitePlusBase().lint).toMatchObject({
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: expect.arrayContaining(['**/*.test.ts']),
+          // Too-opinionated test-style rules + the three unsafe-autofix ones.
+          rules: expect.objectContaining({
+            'vitest/max-expects': 'off',
+            'vitest/no-hooks': 'off',
+            'vitest/prefer-called-with': 'off',
+            'vitest/prefer-describe-function-title': 'off',
+            'vitest/prefer-import-in-mock': 'off',
+            'vitest/require-hook': 'off',
+            'vitest/require-mock-type-parameters': 'off',
+            'vitest/require-top-level-describe': 'off',
+          }),
+        }),
+      ]),
     });
   });
 
@@ -199,6 +222,25 @@ describe('vite-plus presets', () => {
   it('keeps consistent-type-definitions pinned to type (oxlint defaults to interface)', () => {
     expect(vitePlusBase().lint).toMatchObject({
       rules: { 'typescript/consistent-type-definitions': ['warn', 'type'] },
+    });
+  });
+
+  it('keeps the deliberately-enabled rules on, guarding against silent relaxation', () => {
+    // sort-keys (style), no-await-in-loop (perf), and vitest/valid-title
+    // (correctness) are on via oxlint's category defaults, not explicit entries.
+    // A future relaxation could disable them with no other test failing — guard
+    // that they are never turned off at base or in any override.
+    expect(vitePlusBase().lint).toMatchObject({
+      overrides: expect.not.arrayContaining([
+        expect.objectContaining({
+          rules: expect.objectContaining({ 'vitest/valid-title': 'off' }),
+        }),
+      ]),
+      rules: expect.not.objectContaining({
+        'no-await-in-loop': 'off',
+        'sort-keys': 'off',
+        'vitest/valid-title': 'off',
+      }),
     });
   });
 
