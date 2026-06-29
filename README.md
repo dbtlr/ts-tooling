@@ -34,7 +34,13 @@ See [`examples/`](./examples) for runnable, CI-verified versions of each.
 - `pack` present — buildable/publishable package (adds the `pack` block).
 - `test` — override the derived env (`'node'` / `'react'`) or omit it (`false`).
 
-`node`/`react` accept `boolean | string[]`. **A boolean configures the whole project; a glob list scopes the target to those files** (a `files`-scoped oxlint override) and marks a **monorepo root** — lint is centralized and no project-wide test/Vite block is added (members own those). This is how one root config addresses each package's runtime in a vite-plus monorepo (whose `pnpm-workspace.yaml` centralizes lint config).
+`node`/`react` accept `boolean | string[] | { files, rules }`. **A boolean configures the whole project; a glob list scopes the target to those files** (a `files`-scoped oxlint override) and marks a **monorepo root** — lint is centralized and no project-wide test/Vite block is added (members own those). This is how one root config addresses each package's runtime in a vite-plus monorepo (whose `pnpm-workspace.yaml` centralizes lint config).
+
+The **object form** `{ files, rules }` is a glob target that also tunes its own rules: the `rules` are merged into the same scoped override as the target's defaults, so a consumer can disable or change a target rule for those files — e.g. `react: { files: ['packages/ui/**'], rules: { 'react-perf/jsx-no-new-function-as-prop': 'off' } }`. (Whole-project targets don't need this; their rules are tunable via the top-level `lint.rules`.)
+
+#### Bun projects
+
+There is no separate `bun` lint target — and none is needed. Bun runs `node:` builtins, so the **`node` target** is the right lint target for Bun code (the oxlint `node` plugin enables nothing Bun-hostile, and `bun:` imports aren't flagged). Pair it with the `bun` TypeScript preset and `@types/bun` for the `Bun` global: extend `@dbtlr/tooling/tsconfig/bun.json` and `toolingConfig({ node: true })` (or a glob `node` target in a monorepo).
 
 `toolingConfig` also accepts the Vite+ options (`lint` / `fmt` / `staged` / `pack`) as overrides on top of the derived defaults. (`node`/`react` are canonical at the top level, so they're not repeated under `lint`.)
 
