@@ -17,7 +17,7 @@ reset=$'\033[0m'
 echo "${dim}Building @dbtlr/tooling so examples can resolve it...${reset}"
 pnpm run build >/dev/null 2>&1 || { echo "${red}✗ package build failed${reset}"; exit 1; }
 
-examples=(node-server cli library react-spa react-fullstack monorepo)
+examples=(node-server cli library react-spa react-fullstack monorepo adopting)
 failed=()
 
 for ex in "${examples[@]}"; do

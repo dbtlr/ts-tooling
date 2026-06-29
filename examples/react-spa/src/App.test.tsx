@@ -1,10 +1,11 @@
-import { renderToStaticMarkup } from 'react-dom/server';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vite-plus/test';
 
-import { App } from './App.js';
+const Hello = () => <h1>hello</h1>;
 
-describe('the app component', () => {
-  it('renders the heading', () => {
-    expect(renderToStaticMarkup(<App />)).toContain('Hello from the React SPA example');
+describe('dom setup', () => {
+  it('jest-dom matchers are registered via @dbtlr/tooling/setup/dom', () => {
+    render(<Hello />);
+    expect(screen.getByText('hello')).toBeInTheDocument();
   });
 });

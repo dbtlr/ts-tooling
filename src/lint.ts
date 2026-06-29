@@ -120,11 +120,14 @@ const lint = (options: LintOptions = {}): JsonObject => {
     ],
     // Strict by default: warnings fail, and type-aware lint + type checking run.
     // This is the house gate; opt out of any of them per-flag with `false`.
+    // typeCheck requires typeAware; if typeAware is disabled, typeCheck is also
+    // disabled unless the caller explicitly overrides it (which vite-plus would
+    // reject at startup).
     options: compactObject({
       denyWarnings: options.denyWarnings ?? true,
       maxWarnings: options.maxWarnings,
       typeAware: options.typeAware ?? true,
-      typeCheck: options.typeCheck ?? true,
+      typeCheck: options.typeCheck ?? options.typeAware !== false,
     }),
     overrides: [
       ...targetOverrides,
