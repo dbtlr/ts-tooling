@@ -109,11 +109,19 @@ const toolingConfig = (options: ToolingConfigOptions = {}): Plugin => {
   // it is additive (setupFiles + server.fs.allow), so it rides in via `config()`
   // the same way the standalone domSetup() plugin does — Vite concatenates it.
   // configResolved then de-dups, keeping it idempotent if the consumer lists it.
+  //
+  // The test block (environment, globals, include) is also surfaced via `config()`
+  // for the jsdom case: Vitest reads `test.environment` from the pre-resolution
+  // config (before `configResolved` hooks run), so the jsdom environment must be
+  // present there. `configResolved` still de-dups and applies defer-to-user merge.
   const wantsDom = testBlock?.environment === 'jsdom';
   const domContribution = wantsDom ? domSetup().config() : undefined;
+  const configContribution = wantsDom
+    ? mergeConfig(domContribution ?? {}, { test: testBlock ?? {} })
+    : domContribution;
 
   return {
-    config: () => domContribution,
+    config: () => configContribution,
     configResolved: (resolved: ResolvedConfig) => {
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       const config = resolved as unknown as MutableConcerns;
