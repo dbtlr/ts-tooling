@@ -280,6 +280,14 @@ describe('lint', () => {
     });
   });
 
+  it('defaults typeCheck off when typeAware is disabled', () => {
+    expect(lint({ typeAware: false }).options).toMatchObject({ typeCheck: false });
+  });
+
+  it('honors an explicit typeCheck even when typeAware is false', () => {
+    expect(lint({ typeAware: false, typeCheck: true }).options).toMatchObject({ typeCheck: true });
+  });
+
   it('resolves the ternary and boolean-matcher conflicts at base lint scope', () => {
     expect(lint()).toMatchObject({
       rules: {
