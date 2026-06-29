@@ -7,11 +7,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 // both things real apps do. Plugins live at the top level (not in viteReactApp,
 // whose `plugins` is JSON-typed) because they are live plugin objects.
 //
-// `defineConfig` here is `@dbtlr/tooling`'s, not vite-plus's: it accepts
-// array-returning plugins like `@vitejs/plugin-react` without tripping TS2321
-// (and tolerates a vite major skew — this example is on vite@8, the package types
-// against vite@7). Swap it for vite-plus's `defineConfig` and this config fails to
-// type-check — that's the regression this example guards.
+// `defineConfig` here is `@dbtlr/tooling`'s, not vite-plus's: vite-plus's
+// overloaded `defineConfig` trips TS2321 ("excessive stack depth") on
+// array-returning plugins like `@vitejs/plugin-react` (which returns
+// `PluginOption[]` → `Plugin[][]`). Ours accepts them. Swap it for vite-plus's
+// `defineConfig` and this config fails to type-check — the regression this guards.
 export default defineConfig({
   ...vitePlusBase({ lint: { react: true } }),
   ...viteReactApp(),

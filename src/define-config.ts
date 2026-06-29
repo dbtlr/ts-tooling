@@ -1,30 +1,29 @@
+import type { PluginOption } from 'vite';
 import { defineConfig as defineVitePlusConfig } from 'vite-plus';
 import type { UserConfig } from 'vite-plus';
 
-// vite-plus's `defineConfig` overloads blow the type-checker's stack (TS2321:
-// "Excessive stack depth comparing types") when `plugins` contains array-returning
-// plugins like `@vitejs/plugin-react` (which returns `PluginOption[]`, making the
-// array `Plugin[][]`). Vite's own `defineConfig` accepts the same input. This
-// re-export accepts those plugins and delegates to vite-plus at runtime so its
-// guard-plugin injection is preserved.
+// vite-plus's `defineConfig` is overloaded, and the overload resolution blows the
+// type-checker's stack (TS2321: "Excessive stack depth comparing types") when
+// `plugins` contains array-returning plugins like `@vitejs/plugin-react` (which
+// returns `PluginOption[]`, making the array `Plugin[][]`). This is independent of
+// vite version — it reproduces even when the app and this package are on the same
+// vite. Vite's own `defineConfig` accepts the same input.
 //
-// `plugins` is intentionally loose (`readonly unknown[]`): a config helper in a
-// separate package is typed against ITS vite, but a consumer's plugins come from
-// THEIR vite — often a different major (e.g. our vite@7 vs a consumer on vite@8).
-// Structural typing across that skew is exactly what trips TS2321/TS2322, and
-// vite's own `defineConfig` only avoids it because the consumer imports it from
-// their own vite. So we don't tie `plugins` to a specific `PluginOption`; vite
-// validates plugin shape at runtime regardless. Everything else keeps its type.
+// This re-export takes `plugins` as vite's `PluginOption` (the real type — our
+// `.d.ts` references `import('vite')`, which resolves to the consumer's own vite)
+// and delegates to vite-plus at runtime via a single, non-overloaded signature, so
+// the guard-plugin injection is preserved and the overload-depth blowup is avoided.
 //
 // Temporary shim over the upstream vite-plus typing bug; remove once vite-plus
-// widens its `defineConfig` plugin typing.
+// fixes its `defineConfig` overloads.
 type ToolingDefineConfigInput = Omit<UserConfig, 'plugins'> & {
-  readonly plugins?: readonly unknown[];
+  readonly plugins?: readonly PluginOption[];
 };
 
 const defineConfig = (config: ToolingDefineConfigInput): UserConfig =>
   // The widened input is structurally a vite-plus UserConfig once plugins are
-  // accepted; bridge to vite-plus's narrower param here (not at the call site).
+  // accepted; bridge to vite-plus's narrower overloaded param here, not at the
+  // call site.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   defineVitePlusConfig(config as unknown as UserConfig);
 
