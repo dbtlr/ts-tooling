@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { vitePlusBase, vitePlusPackage } from '../src/vite-plus.js';
+import type { LintOverride } from '../src/vite-plus.js';
 
 describe('vite-plus presets', () => {
   it('builds a base config with fmt, lint, and staged blocks', () => {
@@ -145,6 +146,52 @@ describe('vite-plus presets', () => {
     });
   });
 
+  it('folds object-form react rules into the same scoped override (consumer wins)', () => {
+    const { lint } = vitePlusBase({
+      lint: {
+        react: {
+          files: ['packages/ui/**'],
+          // jsx-max-depth collides with a REACT_RULES default (off) — the consumer
+          // value must win because both live in the SAME override (no ordering dep).
+          rules: { 'react-perf/jsx-no-new-function-as-prop': 'off', 'react/jsx-max-depth': 'warn' },
+        },
+      },
+    });
+
+    expect(lint).toMatchObject({
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: ['packages/ui/**'],
+          plugins: ['react', 'react-perf', 'jsx-a11y'],
+          rules: expect.objectContaining({
+            'react-perf/jsx-no-new-function-as-prop': 'off', // consumer addition
+            'react/jsx-max-depth': 'warn', // consumer override wins over REACT_RULES 'off'
+            'react/react-in-jsx-scope': 'off', // target rule still present
+          }),
+        }),
+      ]),
+    });
+  });
+
+  it('folds object-form node rules into the same scoped override', () => {
+    const { lint } = vitePlusBase({
+      lint: { node: { files: ['packages/api/**'], rules: { 'no-console': 'off' } } },
+    });
+
+    expect(lint).toMatchObject({
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: ['packages/api/**'],
+          plugins: ['node'],
+          rules: expect.objectContaining({
+            'import/no-nodejs-modules': 'off', // target rule still present
+            'no-console': 'off', // consumer addition
+          }),
+        }),
+      ]),
+    });
+  });
+
   it('mixes a whole-project node target with a glob-scoped react target', () => {
     const { lint } = vitePlusBase({ lint: { node: true, react: ['packages/web/**'] } });
 
@@ -241,6 +288,16 @@ describe('vite-plus presets', () => {
         'sort-keys': 'off',
         'vitest/valid-title': 'off',
       }),
+    });
+  });
+
+  it('passes a typed lint.overrides entry through with no cast', () => {
+    // LintOverride is the exported, derived type; a typed fragment must assign
+    // without `as unknown as JsonObject[]` and flow through to the config.
+    const override: LintOverride = { files: ['scripts/**'], rules: { 'no-console': 'off' } };
+
+    expect(vitePlusBase({ lint: { overrides: [override] } }).lint).toMatchObject({
+      overrides: expect.arrayContaining([override]),
     });
   });
 
