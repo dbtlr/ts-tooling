@@ -72,16 +72,31 @@ Available presets:
 
 - `vitePlusBase` / `vitePlusPackage` (`@dbtlr/tooling/vite-plus`) — lint/fmt/staged, plus a `pack` block for buildable packages. `node`/`react` live under the `lint` option here. Strict by default.
 - `vitestNode` / `vitestReact` (`@dbtlr/tooling/vitest`) — Vitest project config (node / jsdom).
-- `viteReactApp` (`@dbtlr/tooling/vite`) — the Vite react-app block; pass `plugins: [react()]` for a real dev/build server.
+- `viteReactApp` (`@dbtlr/tooling/vite`) — the Vite react-app block; pass live plugins at the top level of `defineConfig` (see below).
+- `defineConfig` (`@dbtlr/tooling`) — use **this** `defineConfig` (not vite-plus's) when your config passes live Vite plugins. It accepts array-returning plugins like `@vitejs/plugin-react` without tripping `TS2321: Excessive stack depth`, and tolerates a Vite major-version skew between your app and this package. Delegates to vite-plus at runtime.
 
 ```ts
-import { defineConfig } from 'vite-plus';
+import { defineConfig } from '@dbtlr/tooling';
 import { vitePlusPackage } from '@dbtlr/tooling/vite-plus';
 import { vitestNode } from '@dbtlr/tooling/vitest';
 
 export default defineConfig({
   ...vitePlusPackage({ lint: { node: true }, pack: { entry: ['src/index.ts'] } }),
   ...vitestNode(),
+});
+```
+
+A plugin-heavy app config (see `examples/react-spa`):
+
+```ts
+import { defineConfig, viteReactApp, vitePlusBase, vitestReact } from '@dbtlr/tooling';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  ...vitePlusBase({ lint: { react: true } }),
+  ...viteReactApp(),
+  ...vitestReact(),
+  plugins: [react()],
 });
 ```
 
