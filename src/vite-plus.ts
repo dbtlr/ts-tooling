@@ -1,5 +1,7 @@
 import type { UserConfig } from 'vite-plus';
 
+import { isWholeProject, targetGlobs, targetRules } from './helpers.js';
+import type { LintTarget } from './helpers.js';
 import { compactObject } from './types.js';
 import type { JsonObject } from './types.js';
 
@@ -8,21 +10,6 @@ import type { JsonObject } from './types.js';
 // drifts). Lets a consumer pass a typed override to `lint.overrides` without an
 // `as unknown as JsonObject[]` cast.
 type LintOverride = NonNullable<NonNullable<UserConfig['lint']>['overrides']>[number];
-
-// A lint target — `node` or `react` — is a set of files the target applies to.
-// `true` means the whole project (config emitted at the top level); a list of
-// globs means just those files (config emitted as a scoped `overrides` fragment),
-// which is how a mixed-target monorepo's centralized root config addresses each
-// package. `false`/omitted/`[]` means the target is off.
-//
-// The object form `{ files, rules }` is a glob target that also carries consumer
-// rules; those rules are merged into the target's OWN scoped override (after the
-// target defaults), so a consumer can tune or disable a target rule for the same
-// globs. They win because they share one override — not a later one a host
-// toolchain might reorder. Whole-project targets don't need this: their rules are
-// tunable via `lint.rules` (spread last into the base rules).
-type ScopedTarget = { readonly files: readonly string[]; readonly rules?: JsonObject };
-type LintTarget = boolean | readonly string[] | ScopedTarget;
 
 type VitePlusLintOptions = {
   readonly typeAware?: boolean;
@@ -82,24 +69,6 @@ const RELAXED_DEFAULTS: JsonObject = {
   'unicorn/no-await-expression-member': 'off',
   'unicorn/numeric-separators-style': 'off',
 };
-
-// A target is "whole project" only when explicitly `true`.
-const isWholeProject = (target: LintTarget | undefined): boolean => target === true;
-
-// The `{ files, rules }` object form (not a boolean, not a glob array).
-const isScopedObject = (target: LintTarget | undefined): target is ScopedTarget =>
-  typeof target === 'object' && !Array.isArray(target);
-
-// Non-empty glob list (bare array or the object form's `files`) → the target is
-// scoped to those files; otherwise undefined.
-const targetGlobs = (target: LintTarget | undefined): readonly string[] | undefined => {
-  const globs = isScopedObject(target) ? target.files : target;
-  return Array.isArray(globs) && globs.length > 0 ? globs : undefined;
-};
-
-// Consumer rules carried by the object form, merged into the scoped override.
-const targetRules = (target: LintTarget | undefined): JsonObject | undefined =>
-  isScopedObject(target) ? target.rules : undefined;
 
 // Build the scoped `overrides` fragment for a glob-targeted plugin set + rules.
 const scopedOverride = (
@@ -288,4 +257,5 @@ const vitePlusPackage = (options: VitePlusPackageOptions = {}): JsonObject => ({
 });
 
 export { vitePlusBase, vitePlusPackage };
-export type { LintOverride, LintTarget, ScopedTarget, VitePlusLintOptions, VitePlusPackageOptions };
+export type { LintTarget, ScopedTarget } from './helpers.js';
+export type { LintOverride, VitePlusLintOptions, VitePlusPackageOptions };
