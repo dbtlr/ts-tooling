@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0](https://github.com/dbtlr/ts-tooling/compare/v0.2.0...v0.3.0) (2026-06-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* vite >=8 is now the supported peer (was >=7). Consumers using the vite-touching surface (defineConfig / viteReactApp) on vite 7 must upgrade to vite 8. vite remains an optional peer.
+
+### Features
+
+* relax more over-opinionated lint rules from adoption findings ([de99834](https://github.com/dbtlr/ts-tooling/commit/de998349c869dae17d2e1378adbe3bd2d09a1f73))
+* require vite 8 as the supported peer ([0a5109c](https://github.com/dbtlr/ts-tooling/commit/0a5109c59f60dea3604a4a18f040ab5dff21c8cd))
+* tunable glob lint targets and typed lint.overrides ([940cf61](https://github.com/dbtlr/ts-tooling/commit/940cf6103372b6bd1c82a4e26fb89a8827f78931))
+* widened defineConfig re-export for plugin-heavy configs ([e1b4d62](https://github.com/dbtlr/ts-tooling/commit/e1b4d629e57a4d9afd206e36e272143f4c597085))
+
+
+### Bug Fixes
+
+* bump minor (not major) for breaking changes while in 0.x ([#26](https://github.com/dbtlr/ts-tooling/issues/26)) ([15acdaa](https://github.com/dbtlr/ts-tooling/commit/15acdaaafeee30c6e96091b3eae49070ab8cafc3))
+
 ## [0.2.0](https://github.com/dbtlr/ts-tooling/compare/v0.1.1...v0.2.0) (2026-06-28)
 
 
