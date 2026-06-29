@@ -52,7 +52,9 @@ const NODE_RULES: JsonObject = {
 // typescript/consistent-type-definitions stays on, pinned to `type`.) Keys
 // sorted for sort-keys; spread into the base rules so they don't interleave.
 const RELAXED_DEFAULTS: JsonObject = {
+  'func-style': 'off',
   'id-length': 'off',
+  'import/exports-last': 'off',
   'import/group-exports': 'off',
   'init-declarations': 'off',
   'max-params': 'off',
@@ -139,9 +141,26 @@ const vitePlusLint = (options: VitePlusLintOptions = {}): JsonObject => {
         ],
         rules: {
           'max-statements': 'off',
+          // Over-opinionated test rules relaxed in test scope only — dogfooded
+          // from a real adopter. Most are test-structure style (max-expects,
+          // no-hooks, require-hook, require-top-level-describe); require-mock-
+          // type-parameters is oxlint-categorized correctness but in practice
+          // just enforces explicit mock type params, an ergonomic preference.
+          // The three prefer-* are relaxed because their "safe" autofix is
+          // behavior-/type-breaking: prefer-called-with drops the exactly-zero-
+          // args assertion, prefer-describe-function-title passes a non-function
+          // title, prefer-import-in-mock flips the mock overload.
+          'vitest/max-expects': 'off',
+          'vitest/no-hooks': 'off',
           'vitest/no-importing-vitest-globals': 'off',
+          'vitest/prefer-called-with': 'off',
+          'vitest/prefer-describe-function-title': 'off',
           'vitest/prefer-expect-assertions': 'off',
+          'vitest/prefer-import-in-mock': 'off',
           'vitest/prefer-importing-vitest-globals': 'off',
+          'vitest/require-hook': 'off',
+          'vitest/require-mock-type-parameters': 'off',
+          'vitest/require-top-level-describe': 'off',
         },
       },
       ...(options.overrides ?? []),
