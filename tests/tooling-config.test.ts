@@ -25,7 +25,7 @@ type Resolved = {
 // The plugin's hooks are plain functions over the (vite-extended) config shape;
 // view them through the structural type the tests drive.
 type ToolingPlugin = {
-  readonly config: () => Resolved | undefined;
+  readonly config: (userConfig: Resolved) => Resolved | undefined;
   readonly configResolved: (config: Resolved) => void;
   readonly name: string;
 };
@@ -43,7 +43,7 @@ const resolveWith = (
   userConfig: Resolved = {},
 ): Resolved => {
   const tooling = asToolingPlugin(plugin);
-  const fromConfig = tooling.config();
+  const fromConfig = tooling.config(userConfig);
   const merged: Resolved = fromConfig ? mergeConfig(userConfig, fromConfig) : { ...userConfig };
   tooling.configResolved(merged);
   return merged;
@@ -100,6 +100,20 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
     const c = resolveWith(toolingConfig({ node: true }));
     expect(c.test?.setupFiles).toBeUndefined();
     expect(c.server).toBeUndefined();
+  });
+
+  it('req 4: react + no user env defaults test.environment to jsdom', () => {
+    const c = resolveWith(toolingConfig({ react: true }));
+    expect(c.test?.environment).toBe('jsdom');
+    expect(c.test?.setupFiles ?? []).toContain('@dbtlr/tooling/setup/dom');
+    expect(c.server?.fs?.allow ?? []).not.toHaveLength(0);
+  });
+
+  it('req 4: user-supplied test.environment wins over jsdom default; dom setup still rides in', () => {
+    const c = resolveWith(toolingConfig({ react: true }), { test: { environment: 'happy-dom' } });
+    expect(c.test?.environment).toBe('happy-dom');
+    expect(c.test?.setupFiles ?? []).toContain('@dbtlr/tooling/setup/dom');
+    expect(c.server?.fs?.allow ?? []).not.toHaveLength(0);
   });
 
   it('req 5: user array entries merge with house entries — no dupes (setupFiles)', () => {
