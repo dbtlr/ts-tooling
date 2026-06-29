@@ -1,11 +1,14 @@
-import { defineConfig } from 'vite-plus';
-
+import { defineConfig } from './define-config.js';
+import type { ToolingDefineConfigInput } from './define-config.js';
+import { fmt } from './fmt.js';
 import { targetGlobs } from './helpers.js';
 import type { LintTarget } from './helpers.js';
+import { lint } from './lint.js';
+import type { LintOptions } from './lint.js';
+import { pack as packConfig } from './pack.js';
+import { staged as stagedConfig } from './staged.js';
 import { compactObject } from './types.js';
 import type { JsonObject } from './types.js';
-import { vitePlusBase, vitePlusPackage } from './vite-plus.js';
-import type { LintOptions } from './vite-plus.js';
 import { viteReactApp } from './vite.js';
 import { testNode, testReact } from './vitest.js';
 
@@ -19,32 +22,31 @@ type ToolingConfigOptions = {
   readonly staged?: JsonObject | false;
 };
 
-// A glob-scoped target (bare list or the object form's `files`, non-empty) marks a
-// monorepo root: lint only, no test/vite — members own those. A bare `true` is the
-// whole single project; an empty list is the target off (per the LintTarget
-// contract), neither of which is a monorepo root. `targetGlobs` collapses all that
-// to "has scoped globs?".
+// A glob-scoped target marks a monorepo lint root: lint only, members own
+// test/vite. `true` is the whole single project; an empty list is the target off.
 const isScopedTarget = (target: LintTarget | undefined): boolean =>
   targetGlobs(target) !== undefined;
 
+// Resolve the staged value: false → omit; object → pass through; else default.
+const stagedValue = (staged: JsonObject | false | undefined): JsonObject | undefined => {
+  if (staged === false) {
+    return undefined;
+  }
+  if (typeof staged === 'object') {
+    return staged;
+  }
+  return stagedConfig();
+};
+
 const toolingConfig = (options: ToolingConfigOptions = {}) => {
-  const { node, react, test, pack, lint, fmt, staged } = options;
+  const { node, react, test, pack, lint: lintOptions, fmt: fmtOptions, staged } = options;
   const scoped = isScopedTarget(node) || isScopedTarget(react);
 
-  const baseOptions = compactObject({
-    fmt,
-    lint: { ...lint, node, react },
-    staged,
-  });
-  const base =
-    pack === undefined ? vitePlusBase(baseOptions) : vitePlusPackage({ ...baseOptions, pack });
-
-  // Single-project react gets the vite react-app block; a monorepo root (any glob
-  // target) does not — gated on `scoped` so it stays consistent with the test block.
+  // Single-project react gets the vite react-app block; a monorepo root does not.
   const viteApp = react === true && !scoped ? viteReactApp() : {};
 
-  // Derive the test env from intent unless overridden; monorepo roots and
-  // `test: false` carry no test block (members own their own test config).
+  // Test env derives from intent unless overridden; monorepo roots and `test: false`
+  // carry no test block (members own their own test config).
   const testBlock = ((): JsonObject | undefined => {
     if (scoped || test === false) {
       return undefined;
@@ -53,7 +55,19 @@ const toolingConfig = (options: ToolingConfigOptions = {}) => {
     return env === 'react' ? testReact() : testNode();
   })();
 
-  return defineConfig(compactObject({ ...base, ...viteApp, test: testBlock }));
+  return defineConfig(
+    // JsonObject keys are structurally compatible with ToolingDefineConfigInput;
+    // compactObject's return mirrors the input shape, so the bridge cast is safe.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    compactObject({
+      ...viteApp,
+      fmt: fmt(fmtOptions),
+      lint: lint({ ...lintOptions, node, react }),
+      pack: pack === undefined ? undefined : packConfig(pack),
+      staged: stagedValue(staged),
+      test: testBlock,
+    }) as unknown as ToolingDefineConfigInput,
+  );
 };
 
 export { toolingConfig };

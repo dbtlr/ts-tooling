@@ -2,6 +2,43 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { toolingConfig } from '../src/tooling-config.js';
 
+describe('toolingConfig composition', () => {
+  it('places lint and fmt as value-form keys', () => {
+    const config = toolingConfig({ node: true });
+    expect(config.lint).toMatchObject({ options: { denyWarnings: true } });
+    expect(config.fmt).toMatchObject({ singleQuote: true });
+  });
+
+  it('derives a node test block by default', () => {
+    expect(toolingConfig().test).toMatchObject({ environment: 'node' });
+  });
+
+  it('derives a react test block and a vite app block for react: true', () => {
+    const config = toolingConfig({ react: true });
+    expect(config.test).toMatchObject({ environment: 'jsdom' });
+    expect(config).toHaveProperty('plugins');
+  });
+
+  it('a glob (monorepo-lint-root) target emits lint only — no test or pack', () => {
+    const config = toolingConfig({ node: ['packages/api/**'] });
+    expect(config).not.toHaveProperty('test');
+    expect(config).not.toHaveProperty('pack');
+  });
+
+  it('omits the test block when test: false', () => {
+    expect(toolingConfig({ test: false })).not.toHaveProperty('test');
+  });
+
+  it('adds a pack block only when pack is provided', () => {
+    expect(toolingConfig()).not.toHaveProperty('pack');
+    expect(toolingConfig({ pack: {} }).pack).toMatchObject({ exports: true });
+  });
+
+  it('staged: false omits the staged block', () => {
+    expect(toolingConfig({ staged: false })).not.toHaveProperty('staged');
+  });
+});
+
 describe('the toolingConfig helper', () => {
   it('a node project: node lint target + node test env, no pack', () => {
     const config = toolingConfig({ node: true });
