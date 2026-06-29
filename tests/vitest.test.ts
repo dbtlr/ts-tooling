@@ -8,14 +8,14 @@ describe('test helpers (value-form)', () => {
     expect(testNode()).not.toHaveProperty('test');
   });
 
-  it('testReact returns jsdom + globals and defaults the dom setup', () => {
+  it('testReact returns jsdom + globals', () => {
     const value = testReact();
     expect(value).toMatchObject({ environment: 'jsdom', globals: true });
-    expect(value.setupFiles).toContain('@dbtlr/tooling/setup/dom');
+    expect(value).not.toHaveProperty('setupFiles');
   });
 
-  it('setup: false drops the bundled dom setup but keeps caller setupFiles', () => {
-    const value = testReact({ setup: false, setupFiles: ['./mine.ts'] });
+  it('a caller-supplied setupFiles passes through', () => {
+    const value = testReact({ setupFiles: ['./mine.ts'] });
     expect(value.setupFiles).toStrictEqual(['./mine.ts']);
   });
 
