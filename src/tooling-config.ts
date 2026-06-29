@@ -121,7 +121,19 @@ const toolingConfig = (options: ToolingConfigOptions = {}): Plugin => {
     : domContribution;
 
   return {
-    config: () => configContribution,
+    config: (userConfig) => {
+      if (!wantsDom) {
+        return domContribution;
+      }
+      // Vite merges config() returns OVER the user config, so only surface the
+      // jsdom env when the consumer hasn't chosen their own — otherwise just ride
+      // in the additive DOM setup (matchers + fs-allow) and let configResolved's
+      // defer-merge keep the user's environment.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      const userConcerns = userConfig as unknown as MutableConcerns;
+      const userSetEnv = userConcerns.test?.environment !== undefined;
+      return userSetEnv ? domContribution : configContribution;
+    },
     configResolved: (resolved: ResolvedConfig) => {
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       const config = resolved as unknown as MutableConcerns;
@@ -129,9 +141,9 @@ const toolingConfig = (options: ToolingConfigOptions = {}): Plugin => {
         config[key] = deferMerge(houseDefault ?? {}, config[key]);
       }
       // The dom contribution rode in via config() (concatenated by Vite); collapse
-      // any duplicate setupFiles / fs.allow the consumer may have also listed.
+      // any duplicate fs.allow entries the consumer may have also listed.
+      // (config.test deduplication is handled by the deferMerge loop above.)
       if (wantsDom) {
-        config.test = dedupeArrays(config.test);
         config.server = dedupeArrays(config.server);
       }
     },
