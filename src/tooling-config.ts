@@ -5,7 +5,7 @@ import type { LintTarget } from './helpers.js';
 import { compactObject } from './types.js';
 import type { JsonObject } from './types.js';
 import { vitePlusBase, vitePlusPackage } from './vite-plus.js';
-import type { VitePlusLintOptions } from './vite-plus.js';
+import type { LintOptions } from './vite-plus.js';
 import { viteReactApp } from './vite.js';
 import { vitestNode, vitestReact } from './vitest.js';
 
@@ -14,7 +14,7 @@ type ToolingConfigOptions = {
   readonly react?: LintTarget;
   readonly test?: 'node' | 'react' | false;
   readonly pack?: JsonObject;
-  readonly lint?: Omit<VitePlusLintOptions, 'node' | 'react'>;
+  readonly lint?: Omit<LintOptions, 'node' | 'react'>;
   readonly fmt?: JsonObject;
   readonly staged?: JsonObject | false;
 };
