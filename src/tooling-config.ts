@@ -7,7 +7,7 @@ import type { JsonObject } from './types.js';
 import { vitePlusBase, vitePlusPackage } from './vite-plus.js';
 import type { LintOptions } from './vite-plus.js';
 import { viteReactApp } from './vite.js';
-import { vitestNode, vitestReact } from './vitest.js';
+import { testNode, testReact } from './vitest.js';
 
 type ToolingConfigOptions = {
   readonly node?: LintTarget;
@@ -45,15 +45,15 @@ const toolingConfig = (options: ToolingConfigOptions = {}) => {
 
   // Derive the test env from intent unless overridden; monorepo roots and
   // `test: false` carry no test block (members own their own test config).
-  const testBlock = ((): JsonObject => {
+  const testBlock = ((): JsonObject | undefined => {
     if (scoped || test === false) {
-      return {};
+      return undefined;
     }
     const env = test ?? (react ? 'react' : 'node');
-    return env === 'react' ? vitestReact() : vitestNode();
+    return env === 'react' ? testReact() : testNode();
   })();
 
-  return defineConfig({ ...base, ...viteApp, ...testBlock });
+  return defineConfig(compactObject({ ...base, ...viteApp, test: testBlock }));
 };
 
 export { toolingConfig };
