@@ -186,6 +186,7 @@ describe('lint', () => {
         'max-params': 'off',
         'max-statements': 'off',
         'no-continue': 'off',
+        'no-underscore-dangle': 'off',
         'prefer-destructuring': 'off',
         'prefer-named-capture-group': 'off',
         'unicorn/catch-error-name': 'off',
@@ -224,6 +225,8 @@ describe('lint', () => {
             'vitest/no-hooks': 'off',
             'vitest/prefer-describe-function-title': 'off',
             'vitest/prefer-import-in-mock': 'off',
+            'vitest/prefer-lowercase-title': 'off',
+            'vitest/prefer-todo': 'off',
             'vitest/require-hook': 'off',
             'vitest/require-mock-type-parameters': 'off',
             'vitest/require-top-level-describe': 'off',
@@ -352,6 +355,29 @@ describe('lint', () => {
         'vitest/prefer-to-be': 'off',
         'vitest/prefer-to-be-falsy': 'off',
         'vitest/prefer-to-be-truthy': 'off',
+      }),
+    });
+  });
+
+  it('disables the author-choice test-naming/todo style rules in the test override', () => {
+    // Off by policy (extends ADR-0008's "don't legislate matcher choice"):
+    // prefer-lowercase-title mandates how a test/describe title is phrased and
+    // prefer-todo mandates `it.todo()` over an empty `it('…')` — both are the
+    // author's call, not a clarity win. Test-scoped like the rest of vitest.
+    expect(lint()).toMatchObject({
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: expect.arrayContaining(['**/*.test.ts']),
+          rules: expect.objectContaining({
+            'vitest/prefer-lowercase-title': 'off',
+            'vitest/prefer-todo': 'off',
+          }),
+        }),
+      ]),
+      // vitest is test-scoped (ADR-0009) — they must not leak to base.
+      rules: expect.not.objectContaining({
+        'vitest/prefer-lowercase-title': 'off',
+        'vitest/prefer-todo': 'off',
       }),
     });
   });

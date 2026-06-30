@@ -63,6 +63,11 @@ const RELAXED_DEFAULTS: JsonObject = {
   'max-params': 'off',
   'max-statements': 'off',
   'no-continue': 'off',
+  // Leading/trailing underscores are idiomatic (`_unused` args, `_private`,
+  // framework params like TanStack's `_splat`/`_root`). The rule is off-by-default
+  // in ESLint and oxlint and catches no correctness issue — oxlint only mis-files
+  // it under `suspicious`, so our category opt-in makes it a blocking error.
+  'no-underscore-dangle': 'off',
   'prefer-destructuring': 'off',
   'prefer-named-capture-group': 'off',
   'unicorn/catch-error-name': 'off',
@@ -180,7 +185,10 @@ const lint = (options: LintOptions = {}): JsonObject => {
           // explicit mock type params, an ergonomic preference. The two prefer-*
           // are relaxed because their "safe" autofix is behavior-/type-breaking:
           // prefer-describe-function-title passes a non-function title,
-          // prefer-import-in-mock flips the mock overload.
+          // prefer-import-in-mock flips the mock overload. prefer-lowercase-title
+          // and prefer-todo legislate the author's call — how a test title reads
+          // and whether to write `it.todo()` — so they're off by the same policy
+          // that retired the matcher-equivalence rules (ADR-0008).
           'vitest/max-expects': 'off',
           'vitest/no-hooks': 'off',
           'vitest/no-importing-vitest-globals': 'off',
@@ -188,6 +196,8 @@ const lint = (options: LintOptions = {}): JsonObject => {
           'vitest/prefer-expect-assertions': 'off',
           'vitest/prefer-import-in-mock': 'off',
           'vitest/prefer-importing-vitest-globals': 'off',
+          'vitest/prefer-lowercase-title': 'off',
+          'vitest/prefer-todo': 'off',
           'vitest/require-hook': 'off',
           'vitest/require-mock-type-parameters': 'off',
           'vitest/require-top-level-describe': 'off',
