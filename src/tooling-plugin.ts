@@ -3,12 +3,15 @@ import { mergeConfig } from 'vite';
 
 import { domSetup } from './dom-setup.js';
 import { fmt } from './fmt.js';
+import type { FmtOptions } from './fmt.js';
 import { targetGlobs } from './helpers.js';
 import type { LintTarget } from './helpers.js';
 import { lint } from './lint.js';
 import type { LintOptions } from './lint.js';
 import { pack as packConfig } from './pack.js';
+import type { PackOptions } from './pack.js';
 import { staged as stagedConfig } from './staged.js';
+import type { StagedOptions } from './staged.js';
 import { compactObject } from './types.js';
 import type { JsonObject } from './types.js';
 import { testNode, testReact } from './vitest.js';
@@ -17,10 +20,10 @@ type ToolingPluginOptions = {
   readonly node?: LintTarget;
   readonly react?: LintTarget;
   readonly test?: 'node' | 'react' | false;
-  readonly pack?: JsonObject;
+  readonly pack?: PackOptions;
   readonly lint?: Omit<LintOptions, 'node' | 'react'>;
-  readonly fmt?: JsonObject;
-  readonly staged?: JsonObject | false;
+  readonly fmt?: FmtOptions;
+  readonly staged?: StagedOptions | false;
 };
 
 // A mutable view of the resolved config limited to the object-valued concern keys
@@ -33,8 +36,8 @@ type MutableConcerns = Record<string, JsonObject | undefined>;
 const isScopedTarget = (target: LintTarget | undefined): boolean =>
   targetGlobs(target) !== undefined;
 
-// Resolve the staged value: false → omit; object → pass through; else default.
-const stagedValue = (staged: JsonObject | false | undefined): JsonObject | undefined => {
+// Resolve the staged value: false → omit; map → pass through; else default.
+const stagedValue = (staged: StagedOptions | false | undefined): JsonObject | undefined => {
   if (staged === false) {
     return undefined;
   }
