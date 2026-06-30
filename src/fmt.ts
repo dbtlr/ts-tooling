@@ -1,15 +1,18 @@
 import type { UserConfig } from 'vite-plus';
 
+import { GENERATED_PATHS } from './generated.js';
 import type { JsonObject } from './types.js';
 
 // The house ignore list — keeps oxfmt off generated/output files, notably
-// CHANGELOG.md (release-please owns and reformats it every release PR). Exported
-// so consumers can see (and, if they must, re-derive) the defaults; they should
-// rarely need to, since `fmt({ ignores })` appends to this list.
+// CHANGELOG.md (release-please owns and reformats it every release PR) and
+// generator output (GENERATED_PATHS, shared with `lint`). Exported so consumers
+// can see (and, if they must, re-derive) the defaults; they should rarely need
+// to, since `fmt({ ignores })` appends to this list.
 const DEFAULT_FMT_IGNORES = [
   'pnpm-lock.yaml',
   'bun.lock',
   'CHANGELOG.md',
+  ...GENERATED_PATHS,
   'dist/**',
   'build/**',
   'node_modules/**',
