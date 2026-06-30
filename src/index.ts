@@ -1,4 +1,5 @@
 export type { JsonObject, JsonPrimitive, JsonValue } from './types.js';
+export { GENERATED_PATHS } from './generated.js';
 export { defineConfig } from './define-config.js';
 export type { ToolingDefineConfigInput } from './define-config.js';
 export { domSetup } from './dom-setup.js';

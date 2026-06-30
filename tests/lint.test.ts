@@ -1,11 +1,26 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { fmt } from '../src/fmt.js';
+import { GENERATED_PATHS } from '../src/generated.js';
 import { lint } from '../src/lint.js';
 import type { LintOverride } from '../src/lint.js';
 
 describe('lint', () => {
   it('is strict by default', () => {
     expect(lint().options).toMatchObject({ denyWarnings: true, typeAware: true, typeCheck: true });
+  });
+
+  it('ignores generated files by default, from the same source as fmt', () => {
+    // Both helpers source their generated-file ignores from GENERATED_PATHS, so
+    // lint and fmt skip exactly the same generated output (no drift).
+    expect(lint().ignorePatterns).toStrictEqual(expect.arrayContaining([...GENERATED_PATHS]));
+    expect(fmt().ignorePatterns).toStrictEqual(expect.arrayContaining([...GENERATED_PATHS]));
+  });
+
+  it('appends caller ignores after the generated-file defaults', () => {
+    expect(lint({ ignores: ['vendor/**'] })).toMatchObject({
+      ignorePatterns: expect.arrayContaining([...GENERATED_PATHS, 'vendor/**']),
+    });
   });
 
   it('enables the node plugin for a whole-project node target', () => {

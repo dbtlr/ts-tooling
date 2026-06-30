@@ -1,5 +1,6 @@
 import type { UserConfig } from 'vite-plus';
 
+import { GENERATED_PATHS } from './generated.js';
 import { isWholeProject, targetGlobs, targetRules } from './helpers.js';
 import type { LintTarget } from './helpers.js';
 import { compactObject } from './types.js';
@@ -148,6 +149,9 @@ const lint = (options: LintOptions = {}): JsonObject => {
       'coverage',
       '.turbo',
       '.vite',
+      // Generator output (TanStack route trees, codegen) — shared with fmt so the
+      // two ignore the same files. Follows its own style; linting it is noise.
+      ...GENERATED_PATHS,
       ...(options.ignores ?? []),
     ],
     // Strict by default: warnings fail, and type-aware lint + type checking run.

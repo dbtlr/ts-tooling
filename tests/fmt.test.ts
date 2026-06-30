@@ -13,6 +13,10 @@ describe('fmt', () => {
     );
   });
 
+  it('ignores generated files (shared with lint) by default', () => {
+    expect(fmt().ignorePatterns).toStrictEqual(expect.arrayContaining(['**/*.gen.{js,ts}']));
+  });
+
   it('merges caller options over the defaults', () => {
     expect(fmt({ singleQuote: false })).toMatchObject({ singleQuote: false });
   });
