@@ -83,8 +83,8 @@ const RELAXED_DEFAULTS: JsonObject = {
 // failure message — prefer-to-have-length, prefer-to-contain,
 // prefer-equality-matcher, prefer-comparison-matcher — stay on, as do the
 // non-matcher vitest style rules like prefer-spy-on / no-alias-methods.)
-// Disabled at base, not just in test files: the vitest plugin runs whole-project
-// and disabling both sides means no loop can re-form on a non-test source file.
+// Spread into the test-file override (vitest is test-scoped), alongside the
+// test-structure relaxations — base never references a vitest rule.
 const VITEST_MATCHER_STYLE_OFF: JsonObject = {
   'vitest/prefer-called-exactly-once-with': 'off',
   'vitest/prefer-called-once': 'off',
@@ -167,17 +167,20 @@ const lint = (options: LintOptions = {}): JsonObject => {
           '**/*.spec.ts',
           '**/*.spec.tsx',
         ],
+        // The `vitest` plugin lives here, not in the whole-project `plugins`
+        // array — so every vitest rule (matcher preferences + test-structure)
+        // applies to test files only.
+        plugins: ['vitest'],
         rules: {
           'max-statements': 'off',
-          // Over-opinionated test rules relaxed in test scope only — dogfooded
-          // from a real adopter. Most are test-structure style (max-expects,
-          // no-hooks, require-hook, require-top-level-describe); require-mock-
-          // type-parameters is oxlint-categorized correctness but in practice
-          // just enforces explicit mock type params, an ergonomic preference.
-          // These two prefer-* are relaxed because their "safe" autofix is
-          // behavior-/type-breaking: prefer-describe-function-title passes a
-          // non-function title, prefer-import-in-mock flips the mock overload.
-          // (prefer-called-with is off at base via VITEST_MATCHER_STYLE_OFF.)
+          // Over-opinionated test rules relaxed in test scope — dogfooded from a
+          // real adopter. Most are test-structure style (max-expects, no-hooks,
+          // require-hook, require-top-level-describe); require-mock-type-parameters
+          // is oxlint-categorized correctness but in practice just enforces
+          // explicit mock type params, an ergonomic preference. The two prefer-*
+          // are relaxed because their "safe" autofix is behavior-/type-breaking:
+          // prefer-describe-function-title passes a non-function title,
+          // prefer-import-in-mock flips the mock overload.
           'vitest/max-expects': 'off',
           'vitest/no-hooks': 'off',
           'vitest/no-importing-vitest-globals': 'off',
@@ -188,6 +191,10 @@ const lint = (options: LintOptions = {}): JsonObject => {
           'vitest/require-hook': 'off',
           'vitest/require-mock-type-parameters': 'off',
           'vitest/require-top-level-describe': 'off',
+          // The matcher-equivalence rules, off by policy (ADR-0008). Now that
+          // vitest is test-scoped they live here too; base no longer references
+          // any vitest rule.
+          ...VITEST_MATCHER_STYLE_OFF,
         },
       },
       // LintOverride is the typed consumer surface; oxlint overrides are JSON
@@ -204,7 +211,11 @@ const lint = (options: LintOptions = {}): JsonObject => {
       'unicorn',
       'oxc',
       'promise',
-      'vitest',
+      // `vitest` is NOT whole-project: its rules are test-framework rules
+      // (require-hook, no-standalone-expect, the matcher preferences) that are
+      // nonsense on operational tooling — a build script with a top-level call
+      // would trip require-hook. It's enabled only in the test-file override
+      // below, so vitest rules fire on test files and nowhere else.
       // Whole-project targets enable plugins here; glob-scoped targets enable them
       // in their `overrides` fragment instead (see targetOverrides).
       ...(nodeWhole ? NODE_PLUGINS : []),
@@ -228,12 +239,10 @@ const lint = (options: LintOptions = {}): JsonObject => {
       // Ternaries are allowed (no-ternary off) but not forced; prefer-ternary would
       // rewrite else-if chains into nested ternaries, conflicting with unicorn/no-nested-ternary.
       'unicorn/prefer-ternary': 'off',
-      'vitest/prefer-importing-vitest-globals': 'off',
+      // No vitest rules here — vitest is test-scoped (see the test-file override).
       // Spread (not inline) so these stay grouped with their rationale and don't
       // have to interleave alphabetically with the keys above (sort-keys).
       ...RELAXED_DEFAULTS,
-      // vitest matcher-equivalence style rules, off by policy (see the constant).
-      ...VITEST_MATCHER_STYLE_OFF,
       // Whole-project targets only; glob-scoped rules live in their overrides.
       // Spread last so a whole-project node target overrides the baseline above.
       ...(nodeWhole ? NODE_RULES : {}),
