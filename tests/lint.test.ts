@@ -195,14 +195,30 @@ describe('lint', () => {
     });
   });
 
+  it('enables the vitest plugin only in the test-file override, not whole-project', () => {
+    // vitest is test-scoped: its rules are test-framework rules (require-hook,
+    // matcher preferences) that are nonsense on operational tooling. So the
+    // plugin lives in the override, and the whole-project plugins array omits it.
+    const config = lint();
+    expect(config).toMatchObject({
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: expect.arrayContaining(['**/*.test.ts']),
+          plugins: expect.arrayContaining(['vitest']),
+        }),
+      ]),
+    });
+    expect(config).toMatchObject({
+      plugins: expect.not.arrayContaining(['vitest']),
+    });
+  });
+
   it('relaxes the too-opinionated and unsafe-autofix vitest rules in the test override', () => {
     expect(lint()).toMatchObject({
       overrides: expect.arrayContaining([
         expect.objectContaining({
           files: expect.arrayContaining(['**/*.test.ts']),
           // Too-opinionated test-style rules + the two unsafe-autofix ones.
-          // (Matcher-equivalence rules like prefer-called-with are off at base
-          // via VITEST_MATCHER_STYLE_OFF, not here — see the base-scope test.)
           rules: expect.objectContaining({
             'vitest/max-expects': 'off',
             'vitest/no-hooks': 'off',
@@ -298,13 +314,35 @@ describe('lint', () => {
     });
   });
 
-  it('disables the vitest matcher-equivalence style rules as a group at base scope', () => {
-    // Off by policy (ADR-0008): matcher choice is the author's call. The
-    // whole group lives at base — not the test override — because the vitest
-    // plugin runs whole-project and these can otherwise re-form a conflict on a
-    // non-test source file.
+  it('disables the vitest matcher-equivalence style rules as a group in the test override', () => {
+    // Off by policy (ADR-0008): matcher choice is the author's call. Lives in the
+    // test-file override alongside the vitest plugin (vitest is test-scoped,
+    // ADR-0009), so base never references a vitest rule.
     expect(lint()).toMatchObject({
-      rules: {
+      overrides: expect.arrayContaining([
+        expect.objectContaining({
+          files: expect.arrayContaining(['**/*.test.ts']),
+          rules: expect.objectContaining({
+            'vitest/prefer-called-exactly-once-with': 'off',
+            'vitest/prefer-called-once': 'off',
+            'vitest/prefer-called-times': 'off',
+            'vitest/prefer-called-with': 'off',
+            'vitest/prefer-strict-boolean-matchers': 'off',
+            'vitest/prefer-strict-equal': 'off',
+            'vitest/prefer-to-be': 'off',
+            'vitest/prefer-to-be-falsy': 'off',
+            'vitest/prefer-to-be-truthy': 'off',
+          }),
+        }),
+      ]),
+    });
+  });
+
+  it('keeps the matcher-equivalence group out of base scope (vitest is test-scoped)', () => {
+    // The plugin isn't enabled whole-project, so a base vitest rule would dangle.
+    // Guard that the whole group stays out of base (it lives in the override).
+    expect(lint()).toMatchObject({
+      rules: expect.not.objectContaining({
         'vitest/prefer-called-exactly-once-with': 'off',
         'vitest/prefer-called-once': 'off',
         'vitest/prefer-called-times': 'off',
@@ -314,20 +352,6 @@ describe('lint', () => {
         'vitest/prefer-to-be': 'off',
         'vitest/prefer-to-be-falsy': 'off',
         'vitest/prefer-to-be-truthy': 'off',
-      },
-    });
-  });
-
-  it('keeps the clarity-win vitest matcher rules enabled (not part of the group)', () => {
-    // These swap a boolean-coerced assertion for a real matcher with a better
-    // failure message rather than legislate equivalent forms, so they stay on
-    // (never set to 'off') — guard against the group accidentally swallowing them.
-    expect(lint()).toMatchObject({
-      rules: expect.not.objectContaining({
-        'vitest/prefer-comparison-matcher': 'off',
-        'vitest/prefer-equality-matcher': 'off',
-        'vitest/prefer-to-contain': 'off',
-        'vitest/prefer-to-have-length': 'off',
       }),
     });
   });
