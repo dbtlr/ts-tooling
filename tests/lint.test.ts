@@ -200,11 +200,12 @@ describe('lint', () => {
       overrides: expect.arrayContaining([
         expect.objectContaining({
           files: expect.arrayContaining(['**/*.test.ts']),
-          // Too-opinionated test-style rules + the three unsafe-autofix ones.
+          // Too-opinionated test-style rules + the two unsafe-autofix ones.
+          // (Matcher-equivalence rules like prefer-called-with are off at base
+          // via VITEST_MATCHER_STYLE_OFF, not here — see the base-scope test.)
           rules: expect.objectContaining({
             'vitest/max-expects': 'off',
             'vitest/no-hooks': 'off',
-            'vitest/prefer-called-with': 'off',
             'vitest/prefer-describe-function-title': 'off',
             'vitest/prefer-import-in-mock': 'off',
             'vitest/require-hook': 'off',
@@ -288,16 +289,46 @@ describe('lint', () => {
     expect(lint({ typeAware: false, typeCheck: true }).options).toMatchObject({ typeCheck: true });
   });
 
-  it('resolves the ternary, boolean-matcher, and called-once/times conflicts at base lint scope', () => {
+  it('resolves the ternary conflict at base lint scope', () => {
     expect(lint()).toMatchObject({
       rules: {
         'no-ternary': 'off',
         'unicorn/prefer-ternary': 'off',
+      },
+    });
+  });
+
+  it('disables the vitest matcher-equivalence style rules as a group at base scope', () => {
+    // Off by policy (ADR-0008): matcher choice is the author's call. The
+    // whole group lives at base — not the test override — because the vitest
+    // plugin runs whole-project and these can otherwise re-form a conflict on a
+    // non-test source file.
+    expect(lint()).toMatchObject({
+      rules: {
+        'vitest/prefer-called-exactly-once-with': 'off',
         'vitest/prefer-called-once': 'off',
         'vitest/prefer-called-times': 'off',
+        'vitest/prefer-called-with': 'off',
+        'vitest/prefer-strict-boolean-matchers': 'off',
+        'vitest/prefer-strict-equal': 'off',
+        'vitest/prefer-to-be': 'off',
         'vitest/prefer-to-be-falsy': 'off',
         'vitest/prefer-to-be-truthy': 'off',
       },
+    });
+  });
+
+  it('keeps the clarity-win vitest matcher rules enabled (not part of the group)', () => {
+    // These swap a boolean-coerced assertion for a real matcher with a better
+    // failure message rather than legislate equivalent forms, so they stay on
+    // (never set to 'off') — guard against the group accidentally swallowing them.
+    expect(lint()).toMatchObject({
+      rules: expect.not.objectContaining({
+        'vitest/prefer-comparison-matcher': 'off',
+        'vitest/prefer-equality-matcher': 'off',
+        'vitest/prefer-to-contain': 'off',
+        'vitest/prefer-to-have-length': 'off',
+      }),
     });
   });
 });
