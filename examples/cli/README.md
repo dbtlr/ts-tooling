@@ -2,7 +2,7 @@
 
 A command-line tool packaged for Node.js.
 
-- **Config:** `toolingConfig({ node: true, pack: { entry: ['src/cli.ts'] } })` —
+- **Config:** `toolingPlugin({ node: true, pack: { entry: ['src/cli.ts'] } })` —
   node lint + Node test env; `pack` makes it build with `vp pack` (add `exe: true`
   for a standalone binary, plus a `bin` field in `package.json`).
 - **tsconfig:** `@dbtlr/tooling/tsconfig/node.json`.

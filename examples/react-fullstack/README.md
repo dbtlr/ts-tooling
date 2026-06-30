@@ -3,7 +3,7 @@
 An isomorphic React app that renders on the server and hydrates in the browser —
 the shape used by frameworks like TanStack Start, Next.js, and Remix.
 
-- **Config:** `toolingConfig({ node: true, react: true })` — both targets: React
+- **Config:** `toolingPlugin({ node: true, react: true })` — both targets: React
   plugins for the UI (with the jsdom test env), and the `node` plugin so server code
   may import Node builtins (`node:http`).
 - **tsconfig:** `@dbtlr/tooling/tsconfig/react.json` with `types: ["vite/client", "node"]`

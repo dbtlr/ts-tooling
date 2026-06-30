@@ -2,7 +2,7 @@
 
 An environment-agnostic library other packages import.
 
-- **Config:** `toolingConfig({ pack: { entry: ['src/index.ts'] } })` — `pack` makes
+- **Config:** `toolingPlugin({ pack: { entry: ['src/index.ts'] } })` — `pack` makes
   it build with `vp pack` (declaration files, ESM output). No `node`/`react`, so it
   keeps the default browser/universal lint target and Node test env.
 - **tsconfig:** `@dbtlr/tooling/tsconfig/base.json` with Bundler resolution.

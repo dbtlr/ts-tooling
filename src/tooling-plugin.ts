@@ -13,7 +13,7 @@ import { compactObject } from './types.js';
 import type { JsonObject } from './types.js';
 import { testNode, testReact } from './vitest.js';
 
-type ToolingConfigOptions = {
+type ToolingPluginOptions = {
   readonly node?: LintTarget;
   readonly react?: LintTarget;
   readonly test?: 'node' | 'react' | false;
@@ -78,7 +78,7 @@ const deferMerge = (houseDefault: JsonObject, userValue: JsonObject | undefined)
   // mergeConfig(base, override): override (the consumer) wins, arrays concat.
   dedupeArrays(mergeConfig(houseDefault, userValue ?? {}));
 
-const toolingConfig = (options: ToolingConfigOptions = {}): Plugin => {
+const toolingPlugin = (options: ToolingPluginOptions = {}): Plugin => {
   const { node, react, test, pack, lint: lintOptions, fmt: fmtOptions, staged } = options;
   const scoped = isScopedTarget(node) || isScopedTarget(react);
 
@@ -93,7 +93,7 @@ const toolingConfig = (options: ToolingConfigOptions = {}): Plugin => {
   })();
 
   // The house defaults, equivalent to the value-form output of the old
-  // toolingConfig. (viteReactApp only ever contributed an empty `plugins` array,
+  // toolingPlugin. (viteReactApp only ever contributed an empty `plugins` array,
   // which is meaningless for a plugin-form config — the plugin itself lives in
   // `plugins` — so it is intentionally dropped here.)
   const houseDefaults = compactObject<Readonly<Record<string, JsonObject | undefined>>>({
@@ -151,5 +151,5 @@ const toolingConfig = (options: ToolingConfigOptions = {}): Plugin => {
   };
 };
 
-export { toolingConfig };
-export type { ToolingConfigOptions };
+export { toolingPlugin };
+export type { ToolingPluginOptions };

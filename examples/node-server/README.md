@@ -2,7 +2,7 @@
 
 A backend HTTP service that runs on Node.js.
 
-- **Config:** `toolingConfig({ node: true })` — `node` enables the oxlint `node`
+- **Config:** `toolingPlugin({ node: true })` — `node` enables the oxlint `node`
   plugin (permits builtin imports like `node:http`) and selects the Node test env.
 - **tsconfig:** `@dbtlr/tooling/tsconfig/node.json` (NodeNext, Node types).
 
