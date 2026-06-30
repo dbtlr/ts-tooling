@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/dbtlr/ts-tooling/compare/v0.5.0...v0.6.0) (2026-06-30)
+
+
+### Features
+
+* **lint,fmt:** ignore generated files (**/*.gen.{js,ts}) by default ([7669008](https://github.com/dbtlr/ts-tooling/commit/76690089d84682c368ba2401a9c3cd5bed895546))
+* **lint:** relax author-choice naming rules (test titles, todo, underscore-dangle) ([0b064ab](https://github.com/dbtlr/ts-tooling/commit/0b064ab96db4bbced70b515a7d6dfde789d80836))
+
 ## [0.5.0](https://github.com/dbtlr/ts-tooling/compare/v0.4.0...v0.5.0) (2026-06-30)
 
 
