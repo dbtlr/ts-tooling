@@ -70,6 +70,33 @@ const RELAXED_DEFAULTS: JsonObject = {
   'unicorn/numeric-separators-style': 'off',
 };
 
+// vitest's matcher-equivalence style rules — off by policy. These are all the
+// oxlint `vitest` "style"-category rules that legislate which of two equivalent
+// matchers to use (toBe vs toEqual, toBeTruthy vs toBe(true), toHaveBeenCalledOnce
+// vs toHaveBeenCalledTimes(1), …). They are opt-in upstream (off by default in
+// oxlint) and several directly contradict each other — prefer-called-once vs
+// prefer-called-times, prefer-to-be vs prefer-strict-equal, and the
+// truthy/falsy vs strict-boolean trio — so enabling the category produced
+// autofix loops and double-warnings we kept patching one pair at a time. The
+// stance: matcher choice is the author's call; we don't legislate it. (Clarity
+// wins that swap a boolean-coerced assertion for a real matcher with a better
+// failure message — prefer-to-have-length, prefer-to-contain,
+// prefer-equality-matcher, prefer-comparison-matcher — stay on, as do the
+// non-matcher vitest style rules like prefer-spy-on / no-alias-methods.)
+// Disabled at base, not just in test files: the vitest plugin runs whole-project
+// and disabling both sides means no loop can re-form on a non-test source file.
+const VITEST_MATCHER_STYLE_OFF: JsonObject = {
+  'vitest/prefer-called-exactly-once-with': 'off',
+  'vitest/prefer-called-once': 'off',
+  'vitest/prefer-called-times': 'off',
+  'vitest/prefer-called-with': 'off',
+  'vitest/prefer-strict-boolean-matchers': 'off',
+  'vitest/prefer-strict-equal': 'off',
+  'vitest/prefer-to-be': 'off',
+  'vitest/prefer-to-be-falsy': 'off',
+  'vitest/prefer-to-be-truthy': 'off',
+};
+
 // Build the scoped `overrides` fragment for a glob-targeted plugin set + rules.
 const scopedOverride = (
   globs: readonly string[],
@@ -147,14 +174,13 @@ const lint = (options: LintOptions = {}): JsonObject => {
           // no-hooks, require-hook, require-top-level-describe); require-mock-
           // type-parameters is oxlint-categorized correctness but in practice
           // just enforces explicit mock type params, an ergonomic preference.
-          // The three prefer-* are relaxed because their "safe" autofix is
-          // behavior-/type-breaking: prefer-called-with drops the exactly-zero-
-          // args assertion, prefer-describe-function-title passes a non-function
-          // title, prefer-import-in-mock flips the mock overload.
+          // These two prefer-* are relaxed because their "safe" autofix is
+          // behavior-/type-breaking: prefer-describe-function-title passes a
+          // non-function title, prefer-import-in-mock flips the mock overload.
+          // (prefer-called-with is off at base via VITEST_MATCHER_STYLE_OFF.)
           'vitest/max-expects': 'off',
           'vitest/no-hooks': 'off',
           'vitest/no-importing-vitest-globals': 'off',
-          'vitest/prefer-called-with': 'off',
           'vitest/prefer-describe-function-title': 'off',
           'vitest/prefer-expect-assertions': 'off',
           'vitest/prefer-import-in-mock': 'off',
@@ -202,22 +228,12 @@ const lint = (options: LintOptions = {}): JsonObject => {
       // Ternaries are allowed (no-ternary off) but not forced; prefer-ternary would
       // rewrite else-if chains into nested ternaries, conflicting with unicorn/no-nested-ternary.
       'unicorn/prefer-ternary': 'off',
-      // prefer-called-once and prefer-called-times are mutually contradictory
-      // (one rewrites toHaveBeenCalledTimes(1)→toHaveBeenCalledOnce(), the other
-      // rewrites it back) — an autofix loop, like prefer-to-be-truthy/falsy below.
-      // once and times(1) are equivalent and equally readable, so we don't
-      // legislate either form. Both disabled at base (not just in test files), and
-      // since both sides are off the loop can't re-form on a non-test source file.
-      'vitest/prefer-called-once': 'off',
-      'vitest/prefer-called-times': 'off',
       'vitest/prefer-importing-vitest-globals': 'off',
-      // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
-      // Disabled at base (not just in test files) so the conflict can't fire anywhere.
-      'vitest/prefer-to-be-falsy': 'off',
-      'vitest/prefer-to-be-truthy': 'off',
       // Spread (not inline) so these stay grouped with their rationale and don't
       // have to interleave alphabetically with the keys above (sort-keys).
       ...RELAXED_DEFAULTS,
+      // vitest matcher-equivalence style rules, off by policy (see the constant).
+      ...VITEST_MATCHER_STYLE_OFF,
       // Whole-project targets only; glob-scoped rules live in their overrides.
       // Spread last so a whole-project node target overrides the baseline above.
       ...(nodeWhole ? NODE_RULES : {}),
