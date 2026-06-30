@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/dbtlr/ts-tooling/compare/v0.4.0...v0.5.0) (2026-06-30)
+
+
+### Features
+
+* **config:** type the fmt/staged/pack helper options; fmt ignores append ([23f2066](https://github.com/dbtlr/ts-tooling/commit/23f206623482c3a2ea89cb3b05ddcad48b496fad))
+
+
+### Bug Fixes
+
+* **lint:** scope the vitest plugin to test files only ([299f80c](https://github.com/dbtlr/ts-tooling/commit/299f80cca00f90950d1ae70966b25f0047967cf4))
+
 ## [0.4.0](https://github.com/dbtlr/ts-tooling/compare/v0.3.0...v0.4.0) (2026-06-30)
 
 
