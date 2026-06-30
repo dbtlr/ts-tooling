@@ -288,11 +288,13 @@ describe('lint', () => {
     expect(lint({ typeAware: false, typeCheck: true }).options).toMatchObject({ typeCheck: true });
   });
 
-  it('resolves the ternary and boolean-matcher conflicts at base lint scope', () => {
+  it('resolves the ternary, boolean-matcher, and called-once/times conflicts at base lint scope', () => {
     expect(lint()).toMatchObject({
       rules: {
         'no-ternary': 'off',
         'unicorn/prefer-ternary': 'off',
+        'vitest/prefer-called-once': 'off',
+        'vitest/prefer-called-times': 'off',
         'vitest/prefer-to-be-falsy': 'off',
         'vitest/prefer-to-be-truthy': 'off',
       },

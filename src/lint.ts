@@ -202,6 +202,14 @@ const lint = (options: LintOptions = {}): JsonObject => {
       // Ternaries are allowed (no-ternary off) but not forced; prefer-ternary would
       // rewrite else-if chains into nested ternaries, conflicting with unicorn/no-nested-ternary.
       'unicorn/prefer-ternary': 'off',
+      // prefer-called-once and prefer-called-times are mutually contradictory
+      // (one rewrites toHaveBeenCalledTimes(1)→toHaveBeenCalledOnce(), the other
+      // rewrites it back) — an autofix loop, like prefer-to-be-truthy/falsy below.
+      // once and times(1) are equivalent and equally readable, so we don't
+      // legislate either form. Both disabled at base (not just in test files), and
+      // since both sides are off the loop can't re-form on a non-test source file.
+      'vitest/prefer-called-once': 'off',
+      'vitest/prefer-called-times': 'off',
       'vitest/prefer-importing-vitest-globals': 'off',
       // Conflicts with vitest/prefer-strict-boolean-matchers; prefer strict toBe(true|false).
       // Disabled at base (not just in test files) so the conflict can't fire anywhere.
