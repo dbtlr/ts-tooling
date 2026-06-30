@@ -1,7 +1,7 @@
 import { mergeConfig } from 'vite';
 import { describe, expect, it } from 'vite-plus/test';
 
-import { toolingConfig } from '../src/tooling-config.js';
+import { toolingPlugin } from '../src/tooling-plugin.js';
 
 // A structural view of the resolved config the plugin produces — only the keys
 // the contract asserts on. Slash-bearing rule keys stay as index access.
@@ -30,7 +30,7 @@ type ToolingPlugin = {
   readonly name: string;
 };
 
-const asToolingPlugin = (plugin: ReturnType<typeof toolingConfig>): ToolingPlugin =>
+const asToolingPlugin = (plugin: ReturnType<typeof toolingPlugin>): ToolingPlugin =>
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   plugin as unknown as ToolingPlugin;
 
@@ -39,7 +39,7 @@ const asToolingPlugin = (plugin: ReturnType<typeof toolingConfig>): ToolingPlugi
 // runs `configResolved`, where the plugin mutates the resolved object. We inspect
 // the result the way `vp` (via vite's resolveConfig) does.
 const resolveWith = (
-  plugin: ReturnType<typeof toolingConfig>,
+  plugin: ReturnType<typeof toolingPlugin>,
   userConfig: Resolved = {},
 ): Resolved => {
   const tooling = asToolingPlugin(plugin);
@@ -49,13 +49,13 @@ const resolveWith = (
   return merged;
 };
 
-describe('toolingConfig is a defer-to-user vite plugin', () => {
+describe('toolingPlugin is a defer-to-user vite plugin', () => {
   it('returns a plugin object named for the package (req 7)', () => {
-    expect(toolingConfig({ node: true }).name).toBe('@dbtlr/tooling');
+    expect(toolingPlugin({ node: true }).name).toBe('@dbtlr/tooling');
   });
 
   it('req 1: applies the house lint/fmt/test/staged defaults', () => {
-    const c = resolveWith(toolingConfig({ node: true }));
+    const c = resolveWith(toolingPlugin({ node: true }));
     expect(c.lint).toMatchObject({
       options: { denyWarnings: true, typeAware: true, typeCheck: true },
       rules: { 'import/no-nodejs-modules': 'off' },
@@ -67,7 +67,7 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
   });
 
   it('req 2: user rules win per-key, house rules still present', () => {
-    const c = resolveWith(toolingConfig({ node: true }), {
+    const c = resolveWith(toolingPlugin({ node: true }), {
       lint: { rules: { 'unicorn/no-null': 'error' } },
     });
     const rules = c.lint?.rules ?? {};
@@ -79,7 +79,7 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
   });
 
   it('req 3: user scalar overrides win over house scalars', () => {
-    const c = resolveWith(toolingConfig({ node: true }), {
+    const c = resolveWith(toolingPlugin({ node: true }), {
       fmt: { singleQuote: false },
       lint: { options: { denyWarnings: false } },
     });
@@ -90,34 +90,34 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
   });
 
   it('req 4: react intent contributes the dom setup file + fs allow + jsdom env', () => {
-    const c = resolveWith(toolingConfig({ react: true }));
+    const c = resolveWith(toolingPlugin({ react: true }));
     expect(c.test).toMatchObject({ environment: 'jsdom' });
     expect(c.test?.setupFiles ?? []).toContain('@dbtlr/tooling/setup/dom');
     expect(c.server?.fs?.allow ?? []).not.toHaveLength(0);
   });
 
   it('req 4: node-only intent contributes NEITHER dom setup file NOR fs allow', () => {
-    const c = resolveWith(toolingConfig({ node: true }));
+    const c = resolveWith(toolingPlugin({ node: true }));
     expect(c.test?.setupFiles).toBeUndefined();
     expect(c.server).toBeUndefined();
   });
 
   it('req 4: react + no user env defaults test.environment to jsdom', () => {
-    const c = resolveWith(toolingConfig({ react: true }));
+    const c = resolveWith(toolingPlugin({ react: true }));
     expect(c.test?.environment).toBe('jsdom');
     expect(c.test?.setupFiles ?? []).toContain('@dbtlr/tooling/setup/dom');
     expect(c.server?.fs?.allow ?? []).not.toHaveLength(0);
   });
 
   it('req 4: user-supplied test.environment wins over jsdom default; dom setup still rides in', () => {
-    const c = resolveWith(toolingConfig({ react: true }), { test: { environment: 'happy-dom' } });
+    const c = resolveWith(toolingPlugin({ react: true }), { test: { environment: 'happy-dom' } });
     expect(c.test?.environment).toBe('happy-dom');
     expect(c.test?.setupFiles ?? []).toContain('@dbtlr/tooling/setup/dom');
     expect(c.server?.fs?.allow ?? []).not.toHaveLength(0);
   });
 
   it('req 5: user array entries merge with house entries — no dupes (setupFiles)', () => {
-    const c = resolveWith(toolingConfig({ react: true }), { test: { setupFiles: ['./x.ts'] } });
+    const c = resolveWith(toolingPlugin({ react: true }), { test: { setupFiles: ['./x.ts'] } });
     const setupFiles = c.test?.setupFiles ?? [];
     expect(setupFiles).toContain('@dbtlr/tooling/setup/dom');
     expect(setupFiles).toContain('./x.ts');
@@ -125,7 +125,7 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
   });
 
   it('req 5: user array entries merge with house entries — no dupes (lint.plugins)', () => {
-    const c = resolveWith(toolingConfig({ node: true }), {
+    const c = resolveWith(toolingPlugin({ node: true }), {
       lint: { plugins: ['node', 'custom'] },
     });
     const plugins = c.lint?.plugins ?? [];
@@ -135,7 +135,7 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
   });
 
   it('req 5: a user-supplied house entry is not duplicated (idempotent setupFiles)', () => {
-    const c = resolveWith(toolingConfig({ react: true }), {
+    const c = resolveWith(toolingPlugin({ react: true }), {
       test: { setupFiles: ['@dbtlr/tooling/setup/dom'] },
     });
     const setupFiles = c.test?.setupFiles ?? [];
@@ -143,9 +143,9 @@ describe('toolingConfig is a defer-to-user vite plugin', () => {
   });
 });
 
-describe('toolingConfig topology (req 6)', () => {
+describe('toolingPlugin topology (req 6)', () => {
   it('a glob (monorepo-lint-root) target emits lint only — no test', () => {
-    const c = resolveWith(toolingConfig({ node: ['packages/api/**'] }));
+    const c = resolveWith(toolingPlugin({ node: ['packages/api/**'] }));
     expect(c.test).toBeUndefined();
     expect(c.lint).toMatchObject({
       overrides: expect.arrayContaining([expect.objectContaining({ files: ['packages/api/**'] })]),
@@ -153,36 +153,36 @@ describe('toolingConfig topology (req 6)', () => {
   });
 
   it('test: false omits the test block', () => {
-    expect(resolveWith(toolingConfig({ node: true, test: false })).test).toBeUndefined();
+    expect(resolveWith(toolingPlugin({ node: true, test: false })).test).toBeUndefined();
   });
 
   it('test env derives from intent; test:"node" forces node on a react target', () => {
-    expect(resolveWith(toolingConfig({ react: true })).test).toMatchObject({
+    expect(resolveWith(toolingPlugin({ react: true })).test).toMatchObject({
       environment: 'jsdom',
     });
-    expect(resolveWith(toolingConfig({ react: true, test: 'node' })).test).toMatchObject({
+    expect(resolveWith(toolingPlugin({ react: true, test: 'node' })).test).toMatchObject({
       environment: 'node',
     });
   });
 
   it('pack block only when the pack option is provided', () => {
-    expect(resolveWith(toolingConfig({ node: true })).pack).toBeUndefined();
-    expect(resolveWith(toolingConfig({ node: true, pack: {} })).pack).toMatchObject({
+    expect(resolveWith(toolingPlugin({ node: true })).pack).toBeUndefined();
+    expect(resolveWith(toolingPlugin({ node: true, pack: {} })).pack).toMatchObject({
       exports: true,
     });
   });
 
   it('staged: false omits the staged block', () => {
-    expect(resolveWith(toolingConfig({ node: true, staged: false })).staged).toBeUndefined();
+    expect(resolveWith(toolingPlugin({ node: true, staged: false })).staged).toBeUndefined();
   });
 
   it('an empty glob target is "off", not a monorepo root, so the test block stays', () => {
-    expect(resolveWith(toolingConfig({ node: [] })).test).toMatchObject({ environment: 'node' });
+    expect(resolveWith(toolingPlugin({ node: [] })).test).toMatchObject({ environment: 'node' });
   });
 
   it('object-form glob target is a scoped monorepo root: scoped override, no test block', () => {
     const c = resolveWith(
-      toolingConfig({
+      toolingPlugin({
         react: { files: ['packages/web/**'], rules: { 'react/jsx-max-depth': 'warn' } },
       }),
     );
@@ -198,7 +198,7 @@ describe('toolingConfig topology (req 6)', () => {
   });
 
   it('isomorphic (node + react): both lint targets, jsdom test', () => {
-    const c = resolveWith(toolingConfig({ node: true, react: true }));
+    const c = resolveWith(toolingPlugin({ node: true, react: true }));
     expect(c.lint).toMatchObject({ plugins: expect.arrayContaining(['node', 'react']) });
     expect(c.test).toMatchObject({ environment: 'jsdom' });
   });

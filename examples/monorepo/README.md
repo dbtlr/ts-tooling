@@ -18,14 +18,14 @@ still honored; only lint/fmt are centralized.)
 
 So you cannot give `packages/web` `react: true` and `packages/api` `node: true` in
 their own configs. Instead the **root** config names each target with the **globs
-it applies to**. `toolingConfig`'s `node`/`react` accept either `true` (configure
+it applies to**. `toolingPlugin`'s `node`/`react` accept either `true` (configure
 the whole project) or a list of globs — a glob list emits a [`files`-scoped
 override fragment][oxlint-overrides] for just those files (and marks this as a
 monorepo root, so no project-wide test/Vite block is added — members own those):
 
 ```ts
 // vite.config.ts (root)
-toolingConfig({
+toolingPlugin({
   node: ['packages/api/**'], // allow node: builtins only here
   react: ['packages/web/**'], // React plugins + modern-JSX rules only here
 });

@@ -1,8 +1,8 @@
-import { defineConfig, toolingConfig } from '@dbtlr/tooling';
+import { defineConfig, toolingPlugin } from '@dbtlr/tooling';
 
-// Composition path: toolingConfig({ node, pack }) — pack override for a CLI bin.
+// Composition path: toolingPlugin({ node, pack }) — pack override for a CLI bin.
 export default defineConfig({
   plugins: [
-    toolingConfig({ node: true, pack: { dts: false, entry: ['src/cli.ts'], exports: false } }),
+    toolingPlugin({ node: true, pack: { dts: false, entry: ['src/cli.ts'], exports: false } }),
   ],
 });

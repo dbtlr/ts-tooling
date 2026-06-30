@@ -6,17 +6,17 @@ Shared Vite+ config for Drew's TypeScript projects — two layers: a batteries p
 
 **Layer 1 — à la carte value helpers** (`lint`, `fmt`, `staged`, `pack`, `testNode`, `testReact`, `testProjects`, `viteReactApp`): each returns the config value for one key; you compose them yourself and place the values in `defineConfig`. Reach for these when you need full control — live Vite plugins, a monorepo root with per-package test environments, or partial adoption on an existing codebase.
 
-**Layer 2 — batteries plugin** (`toolingConfig`): a Vite plugin you drop into `plugins`. It contributes `lint`, `fmt`, `test`, `staged`, and (if `pack` is specified) `pack` as overridable defaults. Your own top-level config keys win over the plugin's defaults (defer-to-user).
+**Layer 2 — batteries plugin** (`toolingPlugin`): a Vite plugin you drop into `plugins`. It contributes `lint`, `fmt`, `test`, `staged`, and (if `pack` is specified) `pack` as overridable defaults. Your own top-level config keys win over the plugin's defaults (defer-to-user).
 
 ## Quick start — batteries
 
-Drop `toolingConfig()` into `plugins` and declare your project intent:
+Drop `toolingPlugin()` into `plugins` and declare your project intent:
 
 ```ts
 // vite.config.ts
-import { defineConfig, toolingConfig } from '@dbtlr/tooling';
+import { defineConfig, toolingPlugin } from '@dbtlr/tooling';
 
-export default defineConfig({ plugins: [toolingConfig({ node: true })] }); // Node service
+export default defineConfig({ plugins: [toolingPlugin({ node: true })] }); // Node service
 ```
 
 Override any block inline — your top-level key wins over the plugin's default:
@@ -24,7 +24,7 @@ Override any block inline — your top-level key wins over the plugin's default:
 ```ts
 export default defineConfig({
   lint: { rules: { 'unicorn/no-null': 'error' } }, // wins; plugin's lint defaults defer to this
-  plugins: [toolingConfig({ node: true, react: true })],
+  plugins: [toolingPlugin({ node: true, react: true })],
 });
 ```
 
@@ -40,19 +40,19 @@ export default defineConfig({
 
 `node`/`react` also accept a **glob list** (`string[]`) or an **object form** (`{ files, rules }`). A glob list marks a monorepo lint root — lint is centralized, no project-wide test/Vite block is added (members own those). The object form folds consumer rules into the same scoped override as the target's defaults, so you can tune or disable a target rule for those files.
 
-`toolingConfig` also accepts `lint`, `fmt`, and `staged` as extra options layered under the derived defaults — your own inline top-level keys still win.
+`toolingPlugin` also accepts `lint`, `fmt`, and `staged` as extra options layered under the derived defaults — your own inline top-level keys still win.
 
 ### Strict by default
 
 Lint is strict by default: `denyWarnings`, `typeAware`, and `typeCheck` are on. Opt out per-flag via the `lint` option:
 
 ```ts
-toolingConfig({ react: true, lint: { typeCheck: false } });
+toolingPlugin({ react: true, lint: { typeCheck: false } });
 ```
 
 ## How the plugin works (defer-to-user)
 
-`toolingConfig()` is a Vite plugin. In its `configResolved` hook it deep-merges each concern block (lint/fmt/test/staged/pack) under the consumer's already-resolved values — so any key you write at the top level of `defineConfig` wins, per-key for objects and outright for scalars. Concatenated arrays are de-duplicated.
+`toolingPlugin()` is a Vite plugin. In its `configResolved` hook it deep-merges each concern block (lint/fmt/test/staged/pack) under the consumer's already-resolved values — so any key you write at the top level of `defineConfig` wins, per-key for objects and outright for scalars. Concatenated arrays are de-duplicated.
 
 The one exception: the `test.environment: 'jsdom'` entry for the react/DOM path is surfaced via `config()` (before resolution) because Vitest reads `test.environment` pre-resolution. If you supply your own `test.environment`, the plugin defers to yours.
 
@@ -98,7 +98,7 @@ Add it to `plugins` when writing DOM/React tests à la carte:
 plugins: [react(), domSetup()];
 ```
 
-**`toolingConfig({ react: true })` includes this contribution automatically** — you do not add `domSetup()` separately when using the batteries plugin.
+**`toolingPlugin({ react: true })` includes this contribution automatically** — you do not add `domSetup()` separately when using the batteries plugin.
 
 ### `@dbtlr/tooling/setup/dom` — setup module
 
@@ -137,7 +137,7 @@ See [`examples/monorepo`](./examples/monorepo) for the full pnpm-workspace versi
 
 ## `defineConfig` — when to use it
 
-Use `@dbtlr/tooling`'s `defineConfig` (not vite-plus's) whenever your `plugins` array contains live or array-returning plugins (`react()`, `VitePWA()`, `toolingConfig()`, `domSetup()`). vite-plus's overloaded `defineConfig` trips `TS2321: Excessive stack depth` on such plugins; this single-signature delegate accepts `plugins` as vite's `PluginOption` and avoids the error. Temporary shim until vite-plus fixes its overloads.
+Use `@dbtlr/tooling`'s `defineConfig` (not vite-plus's) whenever your `plugins` array contains live or array-returning plugins (`react()`, `VitePWA()`, `toolingPlugin()`, `domSetup()`). vite-plus's overloaded `defineConfig` trips `TS2321: Excessive stack depth` on such plugins; this single-signature delegate accepts `plugins` as vite's `PluginOption` and avoids the error. Temporary shim until vite-plus fixes its overloads.
 
 ```ts
 import { defineConfig } from '@dbtlr/tooling'; // not from 'vite-plus'
@@ -149,10 +149,10 @@ Seven CI-verified examples cover the full composition matrix. See [`examples/`](
 
 | Example           | Real problem                   | Composition path                                                                                        |
 | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `node-server`     | Node service                   | batteries — `plugins: [toolingConfig({ node: true })]`                                                  |
-| `cli`             | CLI bin                        | batteries — `toolingConfig({ node: true, pack })`                                                       |
-| `library`         | Published lib                  | batteries — `toolingConfig({ pack })`                                                                   |
-| `react-fullstack` | Isomorphic SSR app             | batteries — `toolingConfig({ node: true, react: true })` + inline `lint.rules` override (defer-to-user) |
+| `node-server`     | Node service                   | batteries — `plugins: [toolingPlugin({ node: true })]`                                                  |
+| `cli`             | CLI bin                        | batteries — `toolingPlugin({ node: true, pack })`                                                       |
+| `library`         | Published lib                  | batteries — `toolingPlugin({ pack })`                                                                   |
+| `react-fullstack` | Isomorphic SSR app             | batteries — `toolingPlugin({ node: true, react: true })` + inline `lint.rules` override (defer-to-user) |
 | `react-spa`       | SPA with live plugins          | à la carte — `lint` + `fmt` + `testReact` + `plugins: [react(), VitePWA(), domSetup()]`                 |
 | `monorepo`        | pnpm workspace                 | à la carte — glob lint targets + `testProjects` (multi-env)                                             |
 | `adopting`        | Existing codebase mid-adoption | à la carte partial — `fmt()` + lenient `lint({ denyWarnings: false, typeAware: false })`                |
@@ -200,7 +200,7 @@ Available presets:
 
 ## Bun projects
 
-There is no separate `bun` lint target — none is needed. Bun runs `node:` builtins, so the **`node` target** is the right lint target for Bun code (the oxlint `node` plugin enables nothing Bun-hostile, and `bun:` imports aren't flagged). Pair it with the `bun` TypeScript preset and `@types/bun` for the `Bun` global: extend `@dbtlr/tooling/tsconfig/bun.json` and use `toolingConfig({ node: true })` (or a glob `node` target in a monorepo).
+There is no separate `bun` lint target — none is needed. Bun runs `node:` builtins, so the **`node` target** is the right lint target for Bun code (the oxlint `node` plugin enables nothing Bun-hostile, and `bun:` imports aren't flagged). Pair it with the `bun` TypeScript preset and `@types/bun` for the `Bun` global: extend `@dbtlr/tooling/tsconfig/bun.json` and use `toolingPlugin({ node: true })` (or a glob `node` target in a monorepo).
 
 ## Dependency policy
 

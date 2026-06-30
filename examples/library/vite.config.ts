@@ -1,6 +1,6 @@
-import { defineConfig, toolingConfig } from '@dbtlr/tooling';
+import { defineConfig, toolingPlugin } from '@dbtlr/tooling';
 
-// Composition path: toolingConfig({ pack }) — browser lint + pack for a published lib.
+// Composition path: toolingPlugin({ pack }) — browser lint + pack for a published lib.
 export default defineConfig({
-  plugins: [toolingConfig({ pack: { dts: false, entry: ['src/index.ts'], exports: false } })],
+  plugins: [toolingPlugin({ pack: { dts: false, entry: ['src/index.ts'], exports: false } })],
 });

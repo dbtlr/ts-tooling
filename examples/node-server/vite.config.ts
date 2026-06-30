@@ -1,4 +1,4 @@
-import { defineConfig, toolingConfig } from '@dbtlr/tooling';
+import { defineConfig, toolingPlugin } from '@dbtlr/tooling';
 
-// Composition path: toolingConfig batteries (node: true) — Node service.
-export default defineConfig({ plugins: [toolingConfig({ node: true })] });
+// Composition path: toolingPlugin batteries (node: true) — Node service.
+export default defineConfig({ plugins: [toolingPlugin({ node: true })] });

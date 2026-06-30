@@ -2,7 +2,7 @@
 
 A browser-only React single-page app.
 
-- **Config:** `toolingConfig({ react: true })` — `react` enables the React lint
+- **Config:** `toolingPlugin({ react: true })` — `react` enables the React lint
   plugins + modern JSX runtime (no `import React`), the jsdom test env, and the Vite
   react-app block. `node` stays off, so this browser target forbids Node builtins.
 - **tsconfig:** `@dbtlr/tooling/tsconfig/react.json` (DOM libs, `jsx: react-jsx`).
