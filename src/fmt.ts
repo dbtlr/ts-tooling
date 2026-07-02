@@ -1,6 +1,6 @@
 import type { UserConfig } from 'vite-plus';
 
-import { GENERATED_PATHS } from './generated.js';
+import { GLOBAL_IGNORES } from './ignores.ts';
 import type { JsonObject } from './types.js';
 
 // The house ignore list — keeps oxfmt off generated/output files, notably
@@ -8,18 +8,7 @@ import type { JsonObject } from './types.js';
 // generator output (GENERATED_PATHS, shared with `lint`). Exported so consumers
 // can see (and, if they must, re-derive) the defaults; they should rarely need
 // to, since `fmt({ ignores })` appends to this list.
-const DEFAULT_FMT_IGNORES = [
-  'pnpm-lock.yaml',
-  'bun.lock',
-  'CHANGELOG.md',
-  ...GENERATED_PATHS,
-  'dist/**',
-  'build/**',
-  'node_modules/**',
-  'coverage/**',
-  '.turbo/**',
-  '.vite/**',
-] as const;
+const DEFAULT_FMT_IGNORES = ['CHANGELOG.md', ...GLOBAL_IGNORES] as const;
 
 // Typed oxfmt options, derived from vite-plus's public config type so it stays in
 // lockstep with the toolchain. `ignorePatterns` is forbidden (typed `never`):
