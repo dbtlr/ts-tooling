@@ -1,10 +1,10 @@
 import type { UserConfig } from 'vite-plus';
 
-import { GENERATED_PATHS } from './generated.js';
-import { isWholeProject, targetGlobs, targetRules } from './helpers.js';
 import type { LintTarget } from './helpers.js';
-import { compactObject } from './types.js';
+import { isWholeProject, targetGlobs, targetRules } from './helpers.js';
+import { GLOBAL_IGNORES } from './ignores.ts';
 import type { JsonObject } from './types.js';
+import { compactObject } from './types.js';
 
 // A single oxlint override entry, derived from vite-plus's public config type so
 // it stays in lockstep with the toolchain (rather than a hand-rolled copy that
@@ -23,6 +23,11 @@ type LintOptions = {
   readonly rules?: JsonObject;
   readonly overrides?: readonly LintOverride[];
 };
+
+// The house ignore list — keeps oxlint off generated/output files. Exported so
+// consumers can see (and, if they must, re-derive) the defaults; they should
+// rarely need to, since `lint({ ignores })` appends to this list.
+const DEFAULT_LINT_IGNORES = [...GLOBAL_IGNORES] as const;
 
 // oxlint plugins enabled for a React target; the `react` plugin also carries the
 // rules-of-hooks / exhaustive-deps checks.
@@ -142,18 +147,7 @@ const lint = (options: LintOptions = {}): JsonObject => {
       style: 'warn',
       suspicious: 'error',
     },
-    ignorePatterns: [
-      'node_modules',
-      'dist',
-      'build',
-      'coverage',
-      '.turbo',
-      '.vite',
-      // Generator output (TanStack route trees, codegen) — shared with fmt so the
-      // two ignore the same files. Follows its own style; linting it is noise.
-      ...GENERATED_PATHS,
-      ...(options.ignores ?? []),
-    ],
+    ignorePatterns: [...DEFAULT_LINT_IGNORES, ...(options.ignores ?? [])],
     // Strict by default: warnings fail, and type-aware lint + type checking run.
     // This is the house gate; opt out of any of them per-flag with `false`.
     // typeCheck requires typeAware; if typeAware is disabled, typeCheck is also
@@ -266,6 +260,6 @@ const lint = (options: LintOptions = {}): JsonObject => {
   };
 };
 
-export { lint };
 export type { LintTarget, ScopedTarget } from './helpers.js';
+export { DEFAULT_LINT_IGNORES, lint };
 export type { LintOptions, LintOverride };

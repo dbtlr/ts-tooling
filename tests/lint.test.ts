@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { fmt } from '../src/fmt.js';
-import { GENERATED_PATHS } from '../src/generated.js';
-import { lint } from '../src/lint.js';
+import { GENERATED_PATHS } from '../src/ignores.ts';
 import type { LintOverride } from '../src/lint.js';
+import { lint } from '../src/lint.js';
 
 describe('lint', () => {
   it('is strict by default', () => {
