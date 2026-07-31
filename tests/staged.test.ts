@@ -8,6 +8,9 @@ describe('staged', () => {
   });
 
   it('merges caller commands over the default', () => {
-    expect(staged({ '*.md': 'vp fmt' })).toMatchObject({ '*': 'vp check --fix', '*.md': 'vp fmt' });
+    expect(staged({ '*.css': 'vp fmt' })).toMatchObject({
+      '*': 'vp check --fix',
+      '*.css': 'vp fmt',
+    });
   });
 });
