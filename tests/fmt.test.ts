@@ -7,9 +7,9 @@ describe('fmt', () => {
     expect(fmt()).toMatchObject({ singleQuote: true, sortImports: { ignoreCase: true } });
   });
 
-  it('ignores CHANGELOG.md and lockfiles by default', () => {
+  it('ignores markdown and lockfiles by default', () => {
     expect(fmt().ignorePatterns).toStrictEqual(
-      expect.arrayContaining(['CHANGELOG.md', 'pnpm-lock.yaml', 'bun.lock', 'dist/**']),
+      expect.arrayContaining(['**/*.{md,mdx,markdown}', 'pnpm-lock.yaml', 'bun.lock', 'dist/**']),
     );
   });
 
@@ -31,7 +31,7 @@ describe('fmt', () => {
 
   it('still ignores the house defaults even when caller ignores are given', () => {
     expect(fmt({ ignores: ['generated/**'] }).ignorePatterns).toStrictEqual(
-      expect.arrayContaining(['CHANGELOG.md', 'generated/**']),
+      expect.arrayContaining(['**/*.{md,mdx,markdown}', 'generated/**']),
     );
   });
 });
