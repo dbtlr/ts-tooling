@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@dbtlr/tooling": "link:../..",
-    "typescript": "^5.9.0",
-    "vite-plus": "^0.2.1"
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.2.6"
   }
 }
