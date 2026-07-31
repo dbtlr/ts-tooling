@@ -124,6 +124,7 @@ describe('lint', () => {
           files: ['packages/web/**'],
           plugins: ['react', 'react-perf', 'jsx-a11y'],
           rules: {
+            'react/function-component-definition': 'off',
             'react/jsx-max-depth': 'off',
             'react/jsx-props-no-spreading': 'off',
             'react/react-in-jsx-scope': 'off',

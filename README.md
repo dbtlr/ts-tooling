@@ -206,7 +206,7 @@ There is no separate `bun` lint target — none is needed. Bun runs `node:` buil
 
 `@dbtlr/tooling` declares its tool integrations as **optional peer dependencies** — install the ones your config uses:
 
-- `vite-plus` (`>=0.2.0`) — powers the whole toolchain (`vp` build/lint/fmt/test/check).
+- `vite-plus` (`>=0.2.6`) — powers the whole toolchain (`vp` build/lint/fmt/test/check).
 - `vite` (`>=8.0.0`) — Vite itself (vite-plus bundles it; add only if your config needs it directly).
 - `@testing-library/jest-dom` (`>=6`) — optional; required only if you use `@dbtlr/tooling/setup/dom`.
 
