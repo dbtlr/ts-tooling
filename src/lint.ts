@@ -34,10 +34,13 @@ const DEFAULT_LINT_IGNORES = [...GLOBAL_IGNORES] as const;
 const REACT_PLUGINS = ['react', 'react-perf', 'jsx-a11y'] as const;
 
 // The rule tweaks a React target needs: the modern automatic JSX runtime (no
-// in-scope React import), PascalCase component filenames, and two relaxed
+// in-scope React import), PascalCase component filenames, and relaxed
 // defaults that are react-plugin rules (so they live here, only emitted when the
 // react plugin is loaded — both whole-project and glob-scoped).
+// function-component-definition legislates arrow vs declaration components —
+// the author's call, same policy as the test-structure rules.
 const REACT_RULES: JsonObject = {
+  'react/function-component-definition': 'off',
   'react/jsx-max-depth': 'off',
   'react/jsx-props-no-spreading': 'off',
   'react/react-in-jsx-scope': 'off',
@@ -176,6 +179,11 @@ const lint = (options: LintOptions = {}): JsonObject => {
         plugins: ['vitest'],
         rules: {
           'max-statements': 'off',
+          // Nested expect matchers (objectContaining/arrayContaining trees) are
+          // the idiomatic way to assert structure; extracting them into named
+          // variables obscures the asserted shape. Same author's-call policy as
+          // the test-structure rules below.
+          'unicorn/max-nested-calls': 'off',
           // Over-opinionated test rules relaxed in test scope — dogfooded from a
           // real adopter. Most are test-structure style (max-expects, no-hooks,
           // require-hook, require-top-level-describe); require-mock-type-parameters
