@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0 — reads packageManager (pnpm@11.9.0) from package.json
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v4.4.0 — reads packageManager (pnpm@11.9.0) from package.json
 
       # Auth is via OIDC trusted publishing — no static credentials by design.
       # Do NOT add a setup-node auth block or any npm credential here.
